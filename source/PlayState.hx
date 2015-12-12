@@ -5,10 +5,12 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxCamera;
 import flixel.group.FlxGroup;
+import flixel.group.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.util.FlxSpriteUtil;
+import flixel.util.FlxRandom;
 import flixel.tweens.FlxTween;
 import flixel.tile.FlxTilemap;
 
@@ -21,9 +23,10 @@ class PlayState extends FlxState
 
 	// Level stuff
 	private var levelCollidable:FlxGroup;
-	public static var chunks:FlxGroup;
+	public static var chunks:FlxTypedGroup<Chunk>;
 	public static var level:Level;
 	public static var previousTileHeight:Int;
+	public var lastChunkY:Float;
 
 	override public function create():Void
 	{
@@ -44,7 +47,7 @@ class PlayState extends FlxState
 		// testlevel.loadMap("1,0,1,0,1,0,1,0,1", Reg.TILESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
 
 		// add(testlevel);
-		// add(chunks);
+		add(chunks);
 
 		FlxG.mouse.visible = false;
 	}
@@ -59,6 +62,7 @@ class PlayState extends FlxState
 		super.update();
 		collisionUpdate();
 		cameraUpdate();
+		chunksUpdate();
 
 		forDebug();
 
@@ -74,7 +78,7 @@ class PlayState extends FlxState
 		// 	trace(c);
 		// }
 
-		trace(FlxG.camera.scroll.y);
+		// trace(FlxG.camera.scroll.y);
 	}
 
 	private function collisionUpdate():Void
@@ -88,19 +92,37 @@ class PlayState extends FlxState
 		// FlxTween.tween(FlxG.camera.scroll, {x:0, y:player.y}, 2);
 	}
 
-	public static function generateChunk(Type:Int = null):Void
+	public function generateChunk(Type:Int = null):Chunk
 	{
-		if(Type == 0){
-			Type = null;
-		} else {
-			// Type = random
-			Type = 2;
+		if(Type == null) {
+			Type = FlxRandom.intRanged(1,3);
 		}
 
-		var chunk:Chunk = new Chunk(Type, previousTileHeight);
-
+		var chunk:Chunk = new Chunk(Type, previousTileHeight, lastChunkY);
+		// var chunk:FlxTilemap = Level.getChunk(Type);
 		chunks.add(chunk);
+		// add(chunk);
+
 		previousTileHeight = chunk.heightInTiles;
+		trace('prev tile height ' + previousTileHeight);
+		trace('last y: ' + chunk.y);
+		lastChunkY = chunk.y;
+
+		return chunk;
+	}
+
+	private function chunksUpdate():Void
+	{
+		chunks.forEachAlive(checkIfGenerate);
+	}
+
+	private function checkIfGenerate(C:Chunk):Void
+	{
+		if(!C.hasGenerated && (C.y + C.height) >= FlxG.camera.scroll.y){
+			trace("generate");
+			generateChunk();
+			C.hasGenerated = true;
+		}
 	}
 
 	/**
@@ -109,7 +131,7 @@ class PlayState extends FlxState
 
 	public function setupPlayer():Void
 	{
-		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, -32);
+		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, 0);
 		cameraTarget = new FlxSprite(player.x,player.y);
 	}
 
@@ -121,11 +143,13 @@ class PlayState extends FlxState
 		levelCollidable = new FlxGroup();
 		levelCollidable.add(player);
 
-		chunks = new FlxGroup();
+		chunks = new FlxTypedGroup<Chunk>();
 		level = new Level(player, 1);
 
-		previousTileHeight = 0;
-		generateChunk(0);
+		previousTileHeight = -20;
+		var chunk:Chunk = generateChunk(0);
+		trace(chunk);
+		player.y = (chunk.y + chunk.height) - (Reg.T_HEIGHT*2);
 		generateChunk();
 
 		// var chunk:FlxTilemap = Level.getChunk(1, 0);

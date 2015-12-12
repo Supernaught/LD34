@@ -18,16 +18,16 @@ class Level {
 		// level.setTileProperties(1,FlxObject.UP);
 	}
 
-	// public static function getChunk(ChunkType:Int, Offset:Float = 0):FlxTilemap{
-	// 	var Type:String = (ChunkType == null) ? '' : '' + ChunkType;
+	public static function getChunk(ChunkType:Int, Offset:Float = 0):FlxTilemap{
+		var Type:String = (ChunkType == null) ? '' : '' + ChunkType;
 
-	// 	var chunk:Chunk = new Chunk(ChunkType, Offset);
-	// 	chunk.loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.TILESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
-	// 	chunk.setTileProperties(1,FlxObject.UP);
+		var chunk:FlxTilemap = new FlxTilemap();
+		chunk.loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.TILESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
+		chunk.setTileProperties(1,FlxObject.UP);
 		
-	// 	chunk.y = (-Offset-chunk.heightInTiles) * Reg.T_HEIGHT;
-	// 	trace("Creating chunk" + ChunkType + " at " + chunk.y);
+		chunk.y = (-Offset-chunk.heightInTiles) * Reg.T_HEIGHT;
+		trace("Creating chunk" + ChunkType + " at " + chunk.y);
 
-	// 	return chunk;
-	// }
+		return chunk;
+	}
 }
