@@ -3,37 +3,75 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.group.FlxGroup;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
+import flixel.util.FlxSpriteUtil;
 
-/**
- * A FlxState which can be used for the actual gameplay.
- */
 class PlayState extends FlxState
 {
-	/**
-	 * Function that is called up when to state is created to set it up. 
-	 */
+	public var player:Player;
+	
+	private var levelCollidable:FlxGroup;
+
+	public static var level:Level;
+
 	override public function create():Void
 	{
 		super.create();
+
+		setupPlayer();
+		setupLevel();
+
+		add(player);
+		add(level.level);
+
+		FlxG.mouse.visible = false;
 	}
 	
-	/**
-	 * Function that is called when this state is destroyed - you might want to 
-	 * consider setting all objects this state uses to null to help garbage collection.
-	 */
 	override public function destroy():Void
 	{
 		super.destroy();
 	}
 
-	/**
-	 * Function that is called once every frame.
-	 */
 	override public function update():Void
 	{
 		super.update();
+
+		collisionUpdate();
+		forDebug();
+
+		FlxSpriteUtil.screenWrap(player, true, true, false, false);
 	}	
+
+	private function forDebug(){
+		if(FlxG.keys.pressed.R){
+			FlxG.resetState();
+		}
+	}
+
+	private function collisionUpdate():Void
+	{
+		FlxG.collide(levelCollidable, level.level);
+	}
+
+	/**
+	 *	SETUP FUNCTIONS
+	 */
+
+	public function setupPlayer():Void
+	{
+		player = new Player(0,0);
+	}
+
+	public function setupLevel():Void
+	{
+		level = new Level(player);
+		FlxG.worldBounds.width = (level.level.widthInTiles + 1) * Reg.T_WIDTH;
+		FlxG.worldBounds.height = (level.level.heightInTiles + 1) * Reg.T_HEIGHT;
+
+		levelCollidable = new FlxGroup();
+		levelCollidable.add(player);
+	}
 }
