@@ -13,7 +13,7 @@ class Reg
 	public inline static var T_HEIGHT:Int = 16;
 
 	// Physics Stuff
-	public inline static var GRAVITY:Float = 4.2;
+	public inline static var GRAVITY:Float = 3.5;
 
 	// Assets
 	public inline static var TILESHEET:String = "assets/images/tiles.png";

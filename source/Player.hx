@@ -9,17 +9,17 @@ import flixel.util.FlxPoint;
 class Player extends FlxSprite
 {
     // Physics stuff
-    private var maxSpeedX:Int = 180; // actual movespeed. change this if you want player to move faster/slower
-    private var maxSpeedY:Int = 400;
-    private var movespeed:Float = 4000; // used to set velocity when pressing move keys. normally 10-50 times the maxSpeedX, depending on if you want friction
+    public static inline var MAX_SPEED_X:Int = 160; // actual MOVESPEED. change this if you want player to move faster/slower
+    public static inline var MAX_SPEED_Y:Int = 450;
+    public static inline var MOVESPEED:Float = 3000; // used to set velocity when pressing move keys. normally 10-50 times the MAX_SPEED_X, depending on if you want friction
+    public static inline var JUMP_FORCE_MULTIPLIER:Float = 0.8; // how much force to apply on jump, multiplied to MAX_SPEED_Y
+    public static inline var JUMP_HOLD_DURATION:Float = 2; // higher amount means you can hold jump longer. normally 2-3. 1 means no variable jump
     
     // Jump stuff
-    private var jumpForceMultipler:Float = 1.1; // how much force to apply on jump, multiplied to maxSpeedY
-    private var jumpForce:Float; // jumpForceMultiplier * maxSpeedY, initialized in constructor
-    private var jumpHoldDuration:Float = 2.5; // higher amount means you can hold jump longer. normally 2-3. 1 means no variable jump
+    private var jumpForce:Float; // jumpForceMultiplier * MAX_SPEED_Y, initialized in constructor
     private var canJump:Bool;
 
-    public function new(X:Int, Y:Int)
+    public function new(X:Float, Y:Float)
     {
         super(X,Y);
 
@@ -27,12 +27,12 @@ class Player extends FlxSprite
 
         // Physics and movement stuff
         acceleration.y = Reg.GRAVITY;
-        maxVelocity.set(maxSpeedX, maxSpeedY);
-        // drag.x = movespeed;
-        acceleration.x = movespeed;
-        // velocity.x = movespeed;
+        maxVelocity.set(MAX_SPEED_X, MAX_SPEED_Y);
+        // drag.x = MOVESPEED;
+        acceleration.x = MOVESPEED;
+        // velocity.x = MOVESPEED;
 
-        jumpForce = maxSpeedY * jumpForceMultipler;
+        jumpForce = MAX_SPEED_Y * JUMP_FORCE_MULTIPLIER;
 
         // Move stuff
         canJump = true;
@@ -49,6 +49,7 @@ class Player extends FlxSprite
         updateControls();
 
         super.update();
+     
     }
 
     override public function destroy():Void
@@ -63,20 +64,24 @@ class Player extends FlxSprite
 
     public function updateControls():Void 
     {      
-        if(FlxG.keys.justPressed.SPACE){
+        if(FlxG.keys.justPressed.Z){
             // velocity.x *= -1;
             acceleration.x *= -1;
         }
 
-        if(FlxG.keys.pressed.Z){
+        if(FlxG.keys.pressed.X){
+            jump();
+        }
+
+        if(FlxG.keys.pressed.SPACE){
             if(canJump){
                 jump();
             }
             else {
-                acceleration.y = maxSpeedY * Reg.GRAVITY/jumpHoldDuration;
+                acceleration.y = MAX_SPEED_Y * Reg.GRAVITY/JUMP_HOLD_DURATION;
             }
         } else{
-            acceleration.y = maxSpeedY * Reg.GRAVITY;
+            acceleration.y = MAX_SPEED_Y * Reg.GRAVITY;
         }
     }
 
@@ -86,19 +91,19 @@ class Player extends FlxSprite
         canJump = false;
     }
 
-    public function getTileBelow(X:Float):Int{
-        return PlayState.level.level.getTile(Math.round(X/Reg.T_WIDTH),Math.round(y/Reg.T_HEIGHT + 1));
-    }
+    // public function getTileBelow(X:Float):Int{
+    //     return PlayState.level.level.getTile(Math.round(X/Reg.T_WIDTH),Math.round(y/Reg.T_HEIGHT + 1));
+    // }
 
-    public function canJumpDown():Bool{
-        for(i in 31...35){
-            if((getTileBelow(x-Reg.T_WIDTH) == i || getTileBelow(x) == i || getTileBelow(x+Reg.T_WIDTH) == i)){
-                return true;
-            }            
-        }
+    // public function canJumpDown():Bool{
+    //     for(i in 31...35){
+    //         if((getTileBelow(x-Reg.T_WIDTH) == i || getTileBelow(x) == i || getTileBelow(x+Reg.T_WIDTH) == i)){
+    //             return true;
+    //         }            
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
     private function checkIfCanJump(){
         if(isTouching(FlxObject.FLOOR)){
