@@ -26,12 +26,17 @@ class PlayState extends FlxState
 	var score:FlxText;
 
 	// Level stuff
-	private var levelCollidable:FlxGroup;
+	public var levelCollidable:FlxGroup;
 	public var lastChunkY:Float;
+
+	public var powerups:FlxTypedGroup<Powerup>;
+	public var hazards:FlxTypedGroup<Hazard>;
+	public var effects:FlxTypedGroup<Effect>;
+	public var destructibleBlocks:FlxTypedGroup<Block>;
 	public static var chunks:FlxTypedGroup<Chunk>;
+	
 	public static var level:Level;
 	public static var previousTileHeight:Int;
-	public static var destructibleBlocks:FlxTypedGroup<Block>;
 
 	// Effects stuff
 	public static var whiteGibs:FlxEmitter;
@@ -39,6 +44,8 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+
+		lastChunkY = 0;
 
 		setupPlayer();
 		setupLevel();
@@ -48,6 +55,9 @@ class PlayState extends FlxState
 		add(player);
 		add(whiteGibs);
 		add(destructibleBlocks);
+		add(powerups);
+		add(hazards);
+		add(effects);
 		add(chunks);
 		add(score);
 
@@ -91,6 +101,8 @@ class PlayState extends FlxState
 	{
 		FlxG.collide(levelCollidable, chunks, onCollision);
 		FlxG.collide(player, destructibleBlocks, onPlayerDestructibleBlocksCollision);
+		FlxG.collide(player, hazards, onPlayerHazardCollision);
+		FlxG.overlap(player, powerups, onPlayerPowerupCollision);
 	}
 
 	private function onCollision(Object1:FlxObject, Object2:FlxObject):Void{
@@ -103,6 +115,15 @@ class PlayState extends FlxState
 			emitWhiteGibs(Block);
 			Block.hit();
 		// }
+	}
+
+	private function onPlayerPowerupCollision(Player:Player, Powerup:Powerup):Void{
+		player.pickPowerup(Powerup.type);
+		Powerup.picked();
+	}
+
+	private function onPlayerHazardCollision(Player:Player, Hazard:Hazard):Void{
+		player.die();
 	}
 
 	public function cameraUpdate():Void{
@@ -128,9 +149,9 @@ class PlayState extends FlxState
 		return chunk;
 	}
 
-	public static function createBlock(Point:FlxPoint){
-		destructibleBlocks.recycle(Block).init(Point);
-	}
+	// public static function createBlock(Point:FlxPoint){
+		// destructibleBlocks.recycle(Block).init(Point);
+	// }
 
 	private function chunksUpdate():Void
 	{
@@ -166,22 +187,37 @@ class PlayState extends FlxState
 
 	public function setupPlayer():Void
 	{
-		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, 0);
+		effects = new FlxTypedGroup<Effect>();
+		effects.maxSize = 20;
+
+		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, 0, effects);
 		cameraTarget = new FlxSprite(player.x,player.y);
+
+		FlxG.timeScale = 1;
 	}
 
 	public function setupLevel():Void
 	{
+		// Init world
 		var bound:Float = 1000;
 		FlxG.worldBounds.set(-bound,-bound,bound*2,bound*2);
 
+		// Init groups
 		levelCollidable = new FlxGroup();
 
 		chunks = new FlxTypedGroup<Chunk>();
+		chunks.maxSize = 10;
+
+		powerups = new FlxTypedGroup<Powerup>();
+		powerups.maxSize = 5;
+
+		hazards = new FlxTypedGroup<Hazard>();
+		hazards.maxSize = 20;
+
 		destructibleBlocks = new FlxTypedGroup<Block>();
 		destructibleBlocks.maxSize = 50;
 
-		level = new Level(player, 1, destructibleBlocks);
+		level = new Level(player, 1, destructibleBlocks, this);
 
 		// Create first chunk
 		previousTileHeight = -20;
@@ -196,6 +232,7 @@ class PlayState extends FlxState
 	{
 		FlxG.camera.follow(cameraTarget, FlxCamera.STYLE_LOCKON);
 		FlxG.camera.followLerp = 10;
+		FlxG.camera.bgColor = 0xff7fe6ef;
 	}
 
 	private function setupGibs():Void

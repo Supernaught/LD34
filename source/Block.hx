@@ -15,8 +15,8 @@ class Block extends FlxSprite
 
 		immovable = true;
 
-		loadGraphic(Reg.TILESHEET, true, 16,16);
-		animation.add("static", [3], 5, true);
+		loadGraphic(Reg.SPRITESHEET, true, 16,16);
+		animation.add("static", [Reg.TILE_DESTRUCTIBLE], 100, true);
 		animation.play("static");
 
 		// hasGenerated = false;

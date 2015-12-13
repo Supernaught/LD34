@@ -15,9 +15,12 @@ class Level {
 	public var usableChunks:FlxTypedGroup<Chunk>;
 	public var destructibleBlocks:FlxTypedGroup<Block>;
 
-	public function new(Player:Player, ChunkType:Int, DestructibleBlocks:FlxTypedGroup<Block>){
+	private var playState:PlayState;
+
+	public function new(Player:Player, ChunkType:Int, DestructibleBlocks:FlxTypedGroup<Block>, PlayState:PlayState){
 		this.player = Player;
 		this.destructibleBlocks = DestructibleBlocks;
+		this.playState = PlayState;
 
 		// var poolSize = 4;
 		// usableChunks = new FlxTypedGroup<Chunk>(poolSize);
@@ -33,25 +36,20 @@ class Level {
 		var Type:String = (ChunkType == 0) ? '' : '' + ChunkType;
 
 		var chunk:Chunk = new Chunk(ChunkType);
-		chunk.loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.TILESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
+		chunk.loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.SPRITESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
 
-		chunk.setTileProperties(1,FlxObject.UP);
-		chunk.setTileProperties(4,FlxObject.ANY, collideSpikes);
-		// chunk.setTileProperties(3,FlxObject.ANY, collideDestructibleBlocks);
-
-		// chunk.tileToFlxSprite();
-		
-		return chunk;
-	}
-
-	private function collideDestructibleBlocks(Block:FlxObject, Obj2:FlxObject):Void{
-		if(Std.is(Obj2,Player)){
-			// player.die();
-			trace(Block);
-			PlayState.emitWhiteGibs(Block);
-			// Block.destroy();
-			// Block.kill();
+		var oneDirectionTiles = [Reg.TILE_ONE_DIRECTION2, Reg.TILE_ONE_DIRECTION];
+		for(i in oneDirectionTiles){
+			chunk.setTileProperties(i,FlxObject.UP);
 		}
+
+		var spikes = [Reg.TILE_SAWBLADE, 4];
+
+		for(i in spikes){
+			chunk.setTileProperties(i,FlxObject.ANY, collideSpikes);
+		}
+
+		return chunk;
 	}
 
 	private function collideSpikes(Obj1:FlxObject, Obj2:FlxObject):Void{
@@ -66,13 +64,34 @@ class Level {
 
 		var chunkY:Float = LastY - (chunk.heightInTiles * Reg.T_HEIGHT);
 
-		if(chunk.getTileCoords(3, false) != null){
-			for(Point in chunk.getTileCoords(3, false)){
+		// create destructible
+		if(chunk.getTileCoords(Reg.TILE_DESTRUCTIBLE, false) != null){
+			for(Point in chunk.getTileCoords(Reg.TILE_DESTRUCTIBLE, false)){
 				chunk.setTile(Math.round(Point.x/Reg.T_WIDTH), Math.round(Point.y/Reg.T_HEIGHT), -1);
 				Point.y = chunkY + Point.y;
 				Point.x = chunk.x + Point.x;
 				createDesctructibleBlock(Point);
 			}
+		}
+
+		// create powerups
+		if(chunk.getTileCoords(Reg.TILE_POWERUP, false) != null){
+			for(Point in chunk.getTileCoords(Reg.TILE_POWERUP, false)){
+				chunk.setTile(Math.round(Point.x/Reg.T_WIDTH), Math.round(Point.y/Reg.T_HEIGHT), -1);
+				Point.y = chunkY + Point.y;
+				Point.x = chunk.x + Point.x;
+				createPowerup(Point);
+			}	
+		}
+
+		// create sawblades
+		if(chunk.getTileCoords(Reg.TILE_SAWBLADE, false) != null){
+			for(Point in chunk.getTileCoords(Reg.TILE_SAWBLADE, false)){
+				chunk.setTile(Math.round(Point.x/Reg.T_WIDTH), Math.round(Point.y/Reg.T_HEIGHT), -1);
+				Point.y = chunkY + Point.y;
+				Point.x = chunk.x + Point.x;
+				createSawblade(Point);
+			}	
 		}
 
 		chunk.y = chunkY;
@@ -84,6 +103,16 @@ class Level {
 
 	private function createDesctructibleBlock(Point:FlxPoint):Void{
 		// destructibleBlocks.recycle(Block).init(Point);
-		PlayState.createBlock(Point);
+		// playState.createBlock(Point);
+		playState.destructibleBlocks.recycle(Block).init(Point);
+	}
+
+	private function createPowerup(Point:FlxPoint):Void{
+		trace("powerup at " + Point);
+		playState.powerups.recycle(Powerup).init(Point);
+	}
+
+	private function createSawblade(Point:FlxPoint):Void{
+		playState.hazards.recycle(Hazard).init(Point, Reg.HAZARD_SAWBLADE);
 	}
 }

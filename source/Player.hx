@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxObject;
 import flixel.FlxG;
 import flixel.util.FlxPoint;
+import flixel.group.FlxTypedGroup;
 import flixel.effects.particles.FlxEmitter;
 
 
@@ -21,7 +22,10 @@ class Player extends FlxSprite
     private var jumpForce:Float; // jumpForceMultiplier * MAX_SPEED_Y, initialized in constructor
     private var canJump:Bool;
 
-    public function new(X:Float, Y:Float)
+    // References
+    private var effects:FlxTypedGroup<Effect>;
+
+    public function new(X:Float, Y:Float, Effects:FlxTypedGroup<Effect>)
     {
         super(X,Y);
 
@@ -41,6 +45,9 @@ class Player extends FlxSprite
 
         setFacingFlip(FlxObject.LEFT, true, false);
         setFacingFlip(FlxObject.RIGHT, false, false);
+
+        // References stuff
+        effects = Effects;
 
         Reg.getPlayerAnim(this);
     }
@@ -94,9 +101,9 @@ class Player extends FlxSprite
     {
         facing = (velocity.x > 0) ? FlxObject.RIGHT : FlxObject.LEFT;
 
-        if(velocity.y < 0){
+        if(velocity.y > 0){
             animation.play("fall");
-        } else if(velocity.y > 0){
+        } else if(velocity.y < 0){
             animation.play("jump");
         } else{
             animation.play("run");
@@ -109,6 +116,8 @@ class Player extends FlxSprite
         canJump = false;
 
         FlxG.worldBounds.y = y - FlxG.height;
+
+        effects.recycle(Effect).init(new FlxPoint(x,y), Reg.EFFECT_JUMPDUST);
     }
 
     private function checkIfCanJump(){
@@ -122,6 +131,17 @@ class Player extends FlxSprite
     public function die(){
         // trace("die");
         kill();
+        FlxG.timeScale = 0.6;       
+        FlxG.camera.flash(0xFFFFFFFF, 0.5, turnOffSlowMo);
+        FlxG.camera.shake(0.03,0.1);
         PlayState.emitWhiteGibs(this);
+    }
+
+    public function turnOffSlowMo(){
+        FlxG.timeScale = 1;
+    }
+
+    public function pickPowerup(Type:Int){
+        trace("pick powerup!");
     }
 }
