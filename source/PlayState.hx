@@ -22,6 +22,9 @@ class PlayState extends FlxState
 	public var cameraTarget:FlxSprite;
 	public static var player:Player;
 
+	// UI stuff
+	var score:FlxText;
+
 	// Level stuff
 	private var levelCollidable:FlxGroup;
 	public var lastChunkY:Float;
@@ -40,14 +43,15 @@ class PlayState extends FlxState
 		setupPlayer();
 		setupLevel();
 		setupGibs();
+		setupScore();
 
 		add(player);
 		add(whiteGibs);
 		add(destructibleBlocks);
+		add(chunks);
+		add(score);
 
 		setupCamera();
-
-		add(chunks);
 
 		levelCollidable.add(player);
 		levelCollidable.add(whiteGibs);
@@ -66,6 +70,7 @@ class PlayState extends FlxState
 		collisionUpdate();
 		cameraUpdate();
 		chunksUpdate();
+		scoreUpdate();
 
 		forDebug();
 
@@ -132,6 +137,13 @@ class PlayState extends FlxState
 		chunks.forEachAlive(updateChunk);
 	}
 
+	private function scoreUpdate():Void
+	{
+		Reg.score = (Reg.score > Math.round(Math.abs(player.y))) ? Reg.score : Math.round(Math.abs(player.y));
+		Reg.scoreLabel = Math.round(FlxMath.lerp(Reg.scoreLabel, Reg.score, 0.1));
+		score.text = "" + Reg.scoreLabel;
+	}
+
 	private function updateChunk(C:Chunk):Void
 	{
 		if(!C.hasGenerated && (C.y + C.height) >= FlxG.camera.scroll.y){
@@ -195,5 +207,13 @@ class PlayState extends FlxState
 		whiteGibs.gravity = 400;
 		whiteGibs.bounce = 0.5;
 		whiteGibs.makeParticles(Reg.GIBS_SPRITESHEET, 100, 20, true, 0.5);
+	}
+
+	private function setupScore():Void
+	{
+		score = new FlxText(0, 0, FlxG.width); // x, y, width
+		score.text = "";
+		score.setFormat(null, 8, 0xFFFFFFFF, "center");
+		score.scrollFactor.set(0,0);
 	}
 }

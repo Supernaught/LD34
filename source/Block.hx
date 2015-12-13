@@ -32,6 +32,14 @@ class Block extends FlxSprite
 		y = Point.y;
 	}
 
+	override public function update():Void{
+		super.update();
+		if(y > FlxG.camera.scroll.y + FlxG.height * 1.5){
+			kill();
+			trace('kill ' + y);
+		}
+	}
+
 	public function hit(){
 		kill();
 	}

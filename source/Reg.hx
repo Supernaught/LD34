@@ -8,6 +8,7 @@ class Reg
 	// Default
 	public static var level:Int = 0;
 	public static var score:Int = 0;
+	public static var scoreLabel:Int = 0;
 
 	// Game data
 	public inline static var T_WIDTH:Int = 16;

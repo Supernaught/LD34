@@ -14,8 +14,8 @@ class Player extends FlxSprite
     public static inline var MAX_SPEED_X:Int = 180; // actual MOVESPEED. change this if you want player to move faster/slower
     public static inline var MAX_SPEED_Y:Int = 600;
     public static inline var MOVESPEED:Float = 3000; // used to set velocity when pressing move keys. normally 10-50 times the MAX_SPEED_X, depending on if you want friction
-    public static inline var JUMP_FORCE_MULTIPLIER:Float = 0.8; // how much force to apply on jump, multiplied to MAX_SPEED_Y
-    public static inline var JUMP_HOLD_DURATION:Float = 2; // higher amount means you can hold jump longer. normally 2-3. 1 means no variable jump
+    public static inline var JUMP_FORCE_MULTIPLIER:Float = 0.9; // how much force to apply on jump, multiplied to MAX_SPEED_Y
+    public static inline var JUMP_HOLD_DURATION:Float = 1.5; // higher amount means you can hold jump longer. normally 2-3. 1 means no variable jump
     
     // Jump stuff
     private var jumpForce:Float; // jumpForceMultiplier * MAX_SPEED_Y, initialized in constructor
