@@ -24,18 +24,18 @@ class Reg
 	public static function getPlayerAnim(Player:FlxSprite){
 		Player.loadGraphic(SPRITESHEET, true, 16,16);
 		// Player.animation.add("idle", [0,1,2,3], 10);
-		Player.animation.add("run", [70,71,72,73,74], 15);
-		Player.animation.add("fall", [80,81,82], 20);
-		Player.animation.add("jump", [75,76,77,78,79], 20);
+		Player.animation.add("run", [10,11,12,13,14], 15);
+		Player.animation.add("fall", [20,21,22], 20);
+		Player.animation.add("jump", [15,16,17,18,19], 20);
 	}
 
 	public static function getPowerUpAnim(PowerUp:FlxSprite){
 		PowerUp.loadGraphic(SPRITESHEET, true, 16,16);
-		PowerUp.animation.add("bounce", [48,49,50,51,52,53,54,55,56], 30);
+		PowerUp.animation.add("bounce", [1,2,3,4,5,6,7,8,9], 30);
 	}
 
 	public static function getTrails(Trail:FlxSprite){
 		Trail.loadGraphic(SPRITESHEET, true, 16,16);
-		Trail.animation.add("jumpTrail", [83,84,85,86,87], 30);
+		Trail.animation.add("jumpTrail", [23,24,25,26,27], 30);
 	}
 }
