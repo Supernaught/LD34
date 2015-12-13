@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxSprite;
-import flixel.util.FlxSave;
 
 class Reg
 {
@@ -25,8 +24,8 @@ class Reg
 	public static function getPlayerAnim(Player:FlxSprite){
 		Player.loadGraphic(PLAYER_SPRITESHEET, true, 16,16);
 		// Player.animation.add("idle", [0,1,2,3], 10);
-		// Player.animation.add("run", [4,5,6,7,6,5,4], 18);
-		// Player.animation.add("fall", [9,10,11], 13);
-		// Player.animation.add("jump", [12,13,14], 13);
+		Player.animation.add("run", [1], 18);
+		Player.animation.add("fall", [3], 13);
+		Player.animation.add("jump", [2], 13);
 	}
 }

@@ -25,13 +25,13 @@ class Player extends FlxSprite
     {
         super(X,Y);
 
-        makeGraphic(Reg.T_WIDTH, Reg.T_HEIGHT, 0xFFFFFFFF);
+        // makeGraphic(Reg.T_WIDTH, Reg.T_HEIGHT, 0xFFFFFFFF);
 
         // Physics and movement stuff
         acceleration.y = Reg.GRAVITY;
         maxVelocity.set(MAX_SPEED_X, MAX_SPEED_Y);
-        // drag.x = MOVESPEED;
         acceleration.x = MOVESPEED;
+        // drag.x = MOVESPEED;
         // velocity.x = MOVESPEED;
 
         jumpForce = MAX_SPEED_Y * JUMP_FORCE_MULTIPLIER;
@@ -41,6 +41,8 @@ class Player extends FlxSprite
 
         setFacingFlip(FlxObject.LEFT, true, false);
         setFacingFlip(FlxObject.RIGHT, false, false);
+
+        Reg.getPlayerAnim(this);
     }
 
     override public function update():Void
@@ -49,6 +51,7 @@ class Player extends FlxSprite
         checkIfCanJump();
 
         updateControls();
+        updateAnimations();
 
         super.update();
      
@@ -84,6 +87,19 @@ class Player extends FlxSprite
             }
         } else{
             acceleration.y = MAX_SPEED_Y * Reg.GRAVITY;
+        }
+    }
+
+    private function updateAnimations():Void
+    {
+        facing = (velocity.x > 0) ? FlxObject.RIGHT : FlxObject.LEFT;
+
+        if(velocity.y < 0){
+            animation.play("fall");
+        } else if(velocity.y > 0){
+            animation.play("jump");
+        } else{
+            animation.play("run");
         }
     }
 

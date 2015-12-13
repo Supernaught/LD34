@@ -41,6 +41,7 @@ class Block extends FlxSprite
 	}
 
 	public function hit(){
+        FlxG.camera.shake(0.01,0.1);
 		kill();
 	}
 }
