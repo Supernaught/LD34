@@ -5,12 +5,14 @@ import flixel.FlxSprite;
 import flixel.FlxObject;
 import flixel.FlxG;
 import flixel.util.FlxPoint;
+import flixel.effects.particles.FlxEmitter;
+
 
 class Player extends FlxSprite
 {
     // Physics stuff
-    public static inline var MAX_SPEED_X:Int = 160; // actual MOVESPEED. change this if you want player to move faster/slower
-    public static inline var MAX_SPEED_Y:Int = 450;
+    public static inline var MAX_SPEED_X:Int = 180; // actual MOVESPEED. change this if you want player to move faster/slower
+    public static inline var MAX_SPEED_Y:Int = 600;
     public static inline var MOVESPEED:Float = 3000; // used to set velocity when pressing move keys. normally 10-50 times the MAX_SPEED_X, depending on if you want friction
     public static inline var JUMP_FORCE_MULTIPLIER:Float = 0.8; // how much force to apply on jump, multiplied to MAX_SPEED_Y
     public static inline var JUMP_HOLD_DURATION:Float = 2; // higher amount means you can hold jump longer. normally 2-3. 1 means no variable jump
@@ -89,21 +91,9 @@ class Player extends FlxSprite
     {
         velocity.y = -jumpForce;
         canJump = false;
+
+        FlxG.worldBounds.y = y - FlxG.height;
     }
-
-    // public function getTileBelow(X:Float):Int{
-    //     return PlayState.level.level.getTile(Math.round(X/Reg.T_WIDTH),Math.round(y/Reg.T_HEIGHT + 1));
-    // }
-
-    // public function canJumpDown():Bool{
-    //     for(i in 31...35){
-    //         if((getTileBelow(x-Reg.T_WIDTH) == i || getTileBelow(x) == i || getTileBelow(x+Reg.T_WIDTH) == i)){
-    //             return true;
-    //         }            
-    //     }
-
-    //     return false;
-    // }
 
     private function checkIfCanJump(){
         if(isTouching(FlxObject.FLOOR)){
@@ -111,5 +101,11 @@ class Player extends FlxSprite
                 canJump = true;
             }
         }
+    }
+
+    public function die(){
+        // trace("die");
+        kill();
+        PlayState.emitWhiteGibs(this);
     }
 }

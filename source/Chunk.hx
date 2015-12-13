@@ -11,7 +11,7 @@ class Chunk extends FlxTilemap
 {
 	public var hasGenerated:Bool;
 
-	public function new(ChunkType:Int, Offset:Float = 0, LastY:Float = 0)
+	public function new(ChunkType:Int)
 	{
 		super();
 
@@ -21,20 +21,5 @@ class Chunk extends FlxTilemap
 
 		loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.TILESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
 		setTileProperties(1,FlxObject.UP);
-		
-		y = LastY - (heightInTiles * Reg.T_HEIGHT);
-
-		// FlxG.state.add(this);
-		trace("Creating chunk" + Type + " at " + y);
 	}
-
-	// override public function update():Void{
-	// 	super.update();
-	// 		trace("chunky: " + y);
-	// 	if(!hasGenerated && y >= FlxG.camera.scroll.y){
-	// 		trace("qweqweqwe");
-	// 		hasGenerated = true;
-	// 		// PlayState.generateChunk();
-	// 	}
-	// }
 }
