@@ -7,6 +7,7 @@ class Reg
 	// Default
 	public static var level:Int = 0;
 	public static var score:Int = 0;
+	public static var highscore:Int = 0;
 	public static var scoreLabel:Int = 0;
 
 	// Tile Values
@@ -15,6 +16,9 @@ class Reg
 	public inline static var TILE_LEFT_SPIKE = 28;
 	public inline static var TILE_RIGHT_SPIKE = 29;
 	public inline static var TILE_POWERUP = 1;
+	public inline static var TILE_LEFT_MOVING_SPIKE = 53;
+	public inline static var TILE_RIGHT_MOVING_SPIKE = 54;
+	public static var TILE_WALKABLE;
 	public static var TILE_DESTRUCTIBLE;
 	public static var TILE_ONE_DIRECTION;
 	public static var TILE_STATIC_SPIKES;
@@ -22,19 +26,23 @@ class Reg
 	// Game data
 	public inline static var T_WIDTH:Int = 16;
 	public inline static var T_HEIGHT:Int = 16;
+	public inline static var MAPS_COUNT:Int = 4;
+	public inline static var BG_COLOR:Int = 0xff81fffb;
+
 
 	// Hazard types
 	public inline static var HAZARD_SAWBLADE:Int = 1;
-	public inline static var HAZARD_SAWBLADE_HORIZONTAL:Int = 2;
+	// public inline static var HAZARD_LEFT_MOVING_SPIKE:Int = 2;
+	// public inline static var HAZARD_RIGHT_MOVING_SPIKE:Int = 3;
 
 	// Effects types
 	public inline static var EFFECT_JUMPDUST:Int = 1;
 
 	// Physics Stuff
-	public inline static var GRAVITY:Float = 4.1;
+	public inline static var GRAVITY:Float = 4.5;
 
 	// Assets
-	public inline static var TILESHEET:String = "assets/images/tiles.png";
+	public inline static var WHITE_GIBS_SPRITESHEET:String = "assets/images/white_gibs.png";
 	public inline static var CRATE_GIBS_SPRITESHEET:String = "assets/images/crate_gibs.png";
 	public inline static var BLOOD_GIBS_SPRITESHEET:String = "assets/images/blood_gibs.png";
 	public inline static var DUST_SPRITESHEET:String = "assets/images/dust_gibs.png";
@@ -48,6 +56,8 @@ class Reg
 		TILE_DESTRUCTIBLE = [35,36,37];
 		TILE_ONE_DIRECTION = [38, 39, 40, 41];
 		TILE_STATIC_SPIKES = [Reg.TILE_LEFT_SPIKE, Reg.TILE_RIGHT_SPIKE];
+
+		TILE_WALKABLE = [31, 32, 33, 34, 38, 39, 40, 41];
 	}
 
 	public static function getPlayerAnim(Player:FlxSprite){

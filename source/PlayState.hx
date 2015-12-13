@@ -13,6 +13,7 @@ import flixel.util.FlxMath;
 import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxRandom;
 import flixel.util.FlxPoint;
+import flixel.util.FlxSave;
 import flixel.tweens.FlxTween;
 import flixel.tile.FlxTilemap;
 import flixel.effects.particles.FlxEmitter;
@@ -24,6 +25,14 @@ class PlayState extends FlxState
 
 	// UI stuff
 	var score:FlxText;
+	public static var gameSave:FlxSave;
+	public var mainMenuTexts:FlxGroup;
+
+	// Title screen stuff
+	var gameTitle:FlxText;
+	var highscore:FlxText;
+	var pressToStart:FlxText;
+	public static var gameStart:Bool;
 
 	// Level stuff
 	public var levelCollidable:FlxGroup;
@@ -57,6 +66,7 @@ class PlayState extends FlxState
 		setupLevel();
 		setupGibs();
 		setupScore();
+		setupTitleScreen();
 
 		// gibs
 		add(whiteGibs);
@@ -72,7 +82,17 @@ class PlayState extends FlxState
 		add(hazards);
 		add(effects);
 		add(chunks);
+
+		// add UIs
+		mainMenuTexts = new FlxGroup();
 		add(score);
+		add(gameTitle);
+		add(pressToStart);
+		add(highscore);
+
+		mainMenuTexts.add(gameTitle);
+		mainMenuTexts.add(pressToStart);
+		mainMenuTexts.add(highscore);
 
 		setupCamera();
 
@@ -93,6 +113,9 @@ class PlayState extends FlxState
 	override public function update():Void
 	{
 		super.update();
+		if(!gameStart){
+			titleScreenUpdate();
+		}
 		collisionUpdate();
 		cameraUpdate();
 		chunksUpdate();
@@ -122,6 +145,32 @@ class PlayState extends FlxState
 		FlxG.overlap(player, powerups, onPlayerPowerupCollision);
 	}
 
+	private function titleScreenUpdate():Void{
+		if(FlxG.keys.pressed.Z || FlxG.keys.pressed.SPACE){
+			startGame();
+		}
+	}
+
+	private function startGame(){
+		gameStart = true;
+		player.gameStart();
+
+		FlxG.camera.follow(cameraTarget, FlxCamera.STYLE_LOCKON);
+		FlxG.camera.followLerp = 10;
+
+		mainMenuTexts.kill();
+	}
+
+	public static function endGame(){
+		gameStart = false;
+
+		// display gameover screen if exists
+		if(Reg.score > Reg.highscore){
+			gameSave.data.highscore = Reg.score;
+			gameSave.flush();
+		}
+	}
+
 	private function onCollision(Object1:FlxObject, Object2:FlxObject):Void{
 		// trace(Object1);
 		// trace(Object2);
@@ -145,9 +194,11 @@ class PlayState extends FlxState
 
 	public function cameraUpdate():Void{
 
-		if(player.alive){
-			cameraTarget.y -= 1;
-			if(player.y >= (FlxG.camera.scroll.y + FlxG.height + 30)){
+		if(player.alive && gameStart){
+			cameraTarget.y -= 1.2;
+			// cameraTarget.y = player.y;
+			if(player.y >= (FlxG.camera.scroll.y + FlxG.height + 30) ||
+				player.y <= (FlxG.camera.scroll.y - 10)){
 				cameraTarget.y = player.y;
 				player.die();
 			}
@@ -159,7 +210,7 @@ class PlayState extends FlxState
 	public function generateChunk(Type:Int = null):Chunk
 	{
 		if(Type == null) {
-			Type = FlxRandom.intRanged(1,4);
+			Type = FlxRandom.intRanged(1,Reg.MAPS_COUNT);
 		}
 
 		// var chunk:Chunk = new Chunk(Type, previousTileHeight, lastChunkY);
@@ -184,8 +235,8 @@ class PlayState extends FlxState
 
 	private function scoreUpdate():Void
 	{
-		Reg.score = (Reg.score > Math.round(Math.abs(player.y))) ? Reg.score : Math.round(Math.abs(player.y));
-		Reg.scoreLabel = Math.round(FlxMath.lerp(Reg.scoreLabel, Reg.score, 0.1));
+		Reg.score = (Reg.score > Math.round(Math.abs(player.y/100))) ? Reg.score : Math.round(Math.abs(player.y/100));
+		Reg.scoreLabel = Math.round(Reg.score);
 		score.text = "" + Reg.scoreLabel;
 	}
 
@@ -205,7 +256,7 @@ class PlayState extends FlxState
 
 	public static function emitWhiteGibs(Position:FlxObject){
 		whiteGibs.at(Position);
-		whiteGibs.start(true,2,0.2,30,10);
+		whiteGibs.start(true,2,0.2,20,10);
 	}
 
 	public static function emitCrateGibs(Position:FlxObject){
@@ -218,7 +269,7 @@ class PlayState extends FlxState
 
 	public static function emitBloodGibs(Position:FlxObject){
 		bloodGibs.at(Position);
-		bloodGibs.start(true,2,0.2,20,10);
+		bloodGibs.start(true,2,0.2,30,10);
 	}
 
 	public static function emitExplosionGibs(Position:FlxObject){
@@ -272,25 +323,27 @@ class PlayState extends FlxState
 		player.y = (chunk.y + chunk.height) - (Reg.T_HEIGHT*2);
 
 		// Create 2nd chunk
-		generateChunk();
+		generateChunk(4);
 	}
 
 	private function setupCamera():Void
 	{		
-		FlxG.camera.follow(cameraTarget, FlxCamera.STYLE_LOCKON);
-		FlxG.camera.followLerp = 10;
-		FlxG.camera.bgColor = 0xff7fe6ef;
+		FlxG.camera.scroll.y = player.y - FlxG.height;
+		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON);
+		FlxG.camera.followLerp = 20;
+		// FlxG.camera.scroll.y = cameraTarget.y - FlxG.height/4;
+		FlxG.camera.bgColor = Reg.BG_COLOR;
 	}
 
 	private function setupGibs():Void
 	{
 		whiteGibs = new FlxEmitter();
-		whiteGibs.setXSpeed(-200, 200);
-		whiteGibs.setYSpeed(-200, 200);
+		whiteGibs.setXSpeed(-300, 300);
+		whiteGibs.setYSpeed(-300, 300);
 		whiteGibs.setRotation( -360, 0);
 		whiteGibs.gravity = 400;
 		whiteGibs.bounce = 0.5;
-		whiteGibs.makeParticles(Reg.GIBS_SPRITESHEET, 100, 20, true, 0.5);
+		whiteGibs.makeParticles(Reg.WHITE_GIBS_SPRITESHEET, 100, 20, true, 0.5);
 	
 		crateGibs = new FlxEmitter();
 		crateGibs.setXSpeed(-200, 200);
@@ -329,7 +382,35 @@ class PlayState extends FlxState
 		Reg.score = 0;
 		score = new FlxText(0, 0, FlxG.width); // x, y, width
 		score.text = "";
-		score.setFormat(null, 8, 0xFFFFFFFF, "center");
+		score.setFormat(null, 16, 0xFFFFFFFF, "center");
 		score.scrollFactor.set(0,0);
+
+		gameSave = new FlxSave();
+		gameSave.bind("ld34_highscore");
+
+		if(gameSave.data.highscore != null){
+			Reg.highscore = gameSave.data.highscore;
+		} else{
+			Reg.highscore = 0;
+		}
+	}
+
+	private function setupTitleScreen():Void{
+		gameStart = false;
+
+		gameTitle = new FlxText(0,100,FlxG.width);
+		gameTitle.text = "GAME TITLE";
+		gameTitle.setFormat(null, 32, 0xFFFFFFFF, "center");
+		gameTitle.scrollFactor.set(0,0);
+
+		highscore = new FlxText(0,200,FlxG.width);
+		highscore.text = "HI: " + Reg.highscore;
+		highscore.setFormat(null, 8, 0xFFFFFFFF, "center");
+		highscore.scrollFactor.set(0,0);
+
+		pressToStart = new FlxText(0,250,FlxG.width);
+		pressToStart.text = "PRESS TO START";
+		pressToStart.setFormat(null, 8, 0xFFFFFFFF, "center");
+		pressToStart.scrollFactor.set(0,0);
 	}
 }

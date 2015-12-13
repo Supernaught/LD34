@@ -19,13 +19,6 @@ class Block extends FlxSprite
 		loadGraphic(Reg.SPRITESHEET, true, 16,16);
 		animation.add("static", [FlxRandom.getObject(Reg.TILE_DESTRUCTIBLE)], 100, true);
 		animation.play("static");
-
-		// hasGenerated = false;
-
-		// var Type:String = (ChunkType == 0) ? '' : '' + ChunkType;
-
-		// loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.TILESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
-		// setTileProperties(1,FlxObject.UP);
 	}
 
 	public function init(Point:FlxPoint):Void{

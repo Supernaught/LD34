@@ -6,6 +6,7 @@ import flixel.FlxObject;
 import flixel.tile.FlxTile;
 import flixel.util.FlxPoint;
 import flixel.group.FlxTypedGroup;
+import flixel.util.FlxRandom;
 import Class;
 
 class Level {
@@ -108,6 +109,18 @@ class Level {
 			}
 		}
 
+		// create moving spikes
+		for(i in 53...55){
+			if(chunk.getTileCoords(i, false) != null){
+				for(Point in chunk.getTileCoords(i, false)){
+					chunk.setTile(Math.round(Point.x/Reg.T_WIDTH), Math.round(Point.y/Reg.T_HEIGHT), -1);
+					Point.y = chunkY + Point.y;
+					Point.x = chunk.x + Point.x;
+					createMovingSpike(Point, i);
+				}	
+			}
+		}
+
 		chunk.y = chunkY;
 
 		chunk.revive();
@@ -131,6 +144,10 @@ class Level {
 	}
 
 	private function createSpike(Point:FlxPoint, Type:Int):Void{
+		playState.hazards.recycle(Hazard).init(Point, Type);
+	}
+
+	private function createMovingSpike(Point:FlxPoint, Type:Int):Void{
 		playState.hazards.recycle(Hazard).init(Point, Type);
 	}
 }

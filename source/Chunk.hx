@@ -16,10 +16,5 @@ class Chunk extends FlxTilemap
 		super();
 
 		hasGenerated = false;
-
-		var Type:String = (ChunkType == 0) ? '' : '' + ChunkType;
-
-		loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.TILESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
-		setTileProperties(1,FlxObject.UP);
 	}
 }
