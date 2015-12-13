@@ -33,6 +33,7 @@ class Reg
 	// Assets
 	public inline static var TILESHEET:String = "assets/images/tiles.png";
 	public inline static var CRATE_GIBS_SPRITESHEET:String = "assets/images/crate_gibs.png";
+	public inline static var JUMP_GIBS_SPRITESHEET:String = "assets/images/jump_gibs.png";
 	public inline static var GIBS_SPRITESHEET:String = "assets/images/gibs.png";
 	public inline static var SPRITESHEET:String = "assets/images/tileset.png";
 
@@ -51,8 +52,8 @@ class Reg
 	}
 
 	public static function getTrailAnim(Trail:FlxSprite){
-		Trail.loadGraphic(SPRITESHEET, true, 16,16);
-		Trail.animation.add("jumpTrail", [23,24,25,26,27,0], 30, false);
+		Trail.loadGraphic(JUMP_GIBS_SPRITESHEET, true, 16,16);
+		Trail.animation.add("jumpTrail", [0,1,2,3,4,5,6,7], 30, false);
 		Trail.animation.play("jumpTrail");
 	}
 
