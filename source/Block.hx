@@ -6,6 +6,7 @@ import flixel.FlxObject;
 import flixel.FlxG;
 import flixel.util.FlxPoint;
 import flixel.tile.FlxTilemap;
+import flixel.util.FlxRandom;
 
 class Block extends FlxSprite
 {
@@ -16,7 +17,7 @@ class Block extends FlxSprite
 		immovable = true;
 
 		loadGraphic(Reg.SPRITESHEET, true, 16,16);
-		animation.add("static", [Reg.TILE_DESTRUCTIBLE], 100, true);
+		animation.add("static", [FlxRandom.getObject(Reg.TILE_DESTRUCTIBLE)], 100, true);
 		animation.play("static");
 
 		// hasGenerated = false;
@@ -42,6 +43,8 @@ class Block extends FlxSprite
 
 	public function hit(){
         FlxG.camera.shake(0.01,0.1);
+		PlayState.emitCrateGibs(this);
+		PlayState.emitExplosionGibs(this);
 		kill();
 	}
 }

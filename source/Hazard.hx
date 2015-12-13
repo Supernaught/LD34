@@ -24,7 +24,11 @@ class Hazard extends FlxSprite
 			angularVelocity = 500;
 			Reg.getSawbladeAnim(this);
 
-			default:
+			case Reg.TILE_LEFT_SPIKE:
+			Reg.getLeftSpikeAnim(this);
+
+			case Reg.TILE_RIGHT_SPIKE:
+			Reg.getRightSpikeAnim(this);
 		}
 	}
 

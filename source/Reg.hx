@@ -11,11 +11,13 @@ class Reg
 
 	// Tile Values
 	public inline static var TILE_GROUND = 1;
-	public inline static var TILE_ONE_DIRECTION = 38;
-	public inline static var TILE_ONE_DIRECTION2 = 39;
 	public inline static var TILE_SAWBLADE = 30;
-	public inline static var TILE_DESTRUCTIBLE = 36;
+	public inline static var TILE_LEFT_SPIKE = 28;
+	public inline static var TILE_RIGHT_SPIKE = 29;
 	public inline static var TILE_POWERUP = 1;
+	public static var TILE_DESTRUCTIBLE;
+	public static var TILE_ONE_DIRECTION;
+	public static var TILE_STATIC_SPIKES;
 
 	// Game data
 	public inline static var T_WIDTH:Int = 16;
@@ -23,6 +25,7 @@ class Reg
 
 	// Hazard types
 	public inline static var HAZARD_SAWBLADE:Int = 1;
+	public inline static var HAZARD_SAWBLADE_HORIZONTAL:Int = 2;
 
 	// Effects types
 	public inline static var EFFECT_JUMPDUST:Int = 1;
@@ -33,12 +36,19 @@ class Reg
 	// Assets
 	public inline static var TILESHEET:String = "assets/images/tiles.png";
 	public inline static var CRATE_GIBS_SPRITESHEET:String = "assets/images/crate_gibs.png";
-	public inline static var BLOOD_SPRITESHEET:String = "assets/images/blood_gibs.png";
+	public inline static var BLOOD_GIBS_SPRITESHEET:String = "assets/images/blood_gibs.png";
 	public inline static var DUST_SPRITESHEET:String = "assets/images/dust_gibs.png";
-	public inline static var JUMP_GIBS_SPRITESHEET:String = "assets/images/jump_gibs.png";
+	public inline static var JUMP_DUST_SPRITESHEET:String = "assets/images/jump_gibs.png";
 	public inline static var EXPLOSION_GIBS_SPRITESHEET:String = "assets/images/explosion_gibs.png";
+	public inline static var BIG_CRATE_GIBS_SPRITESHEET:String = "assets/images/big_crate_gibs.png";
 	public inline static var GIBS_SPRITESHEET:String = "assets/images/gibs.png";
 	public inline static var SPRITESHEET:String = "assets/images/tileset.png";
+
+	public static function init(){
+		TILE_DESTRUCTIBLE = [35,36,37];
+		TILE_ONE_DIRECTION = [38, 39, 40, 41];
+		TILE_STATIC_SPIKES = [Reg.TILE_LEFT_SPIKE, Reg.TILE_RIGHT_SPIKE];
+	}
 
 	public static function getPlayerAnim(Player:FlxSprite){
 		Player.loadGraphic(SPRITESHEET, true, 16,16);
@@ -55,8 +65,8 @@ class Reg
 	}
 
 	public static function getTrailAnim(Trail:FlxSprite){
-		Trail.loadGraphic(JUMP_GIBS_SPRITESHEET, true, 16,16);
-		Trail.animation.add("jumpTrail", [0,1,2,3,4,5,6,7], 30, false);
+		Trail.loadGraphic(JUMP_DUST_SPRITESHEET, true, 16,16);
+		Trail.animation.add("jumpTrail", [0,1,2,3,4,5,6,7], 60, false);
 		Trail.animation.play("jumpTrail");
 	}
 
@@ -64,5 +74,17 @@ class Reg
 		Sawblade.loadGraphic(SPRITESHEET, true, 16,16);
 		Sawblade.animation.add("idle", [30], 30);
 		Sawblade.animation.play("idle");	
+	}
+
+	public static function getLeftSpikeAnim(Spike:FlxSprite){
+		Spike.loadGraphic(SPRITESHEET, true, 16, 16);
+		Spike.animation.add("idle", [Reg.TILE_LEFT_SPIKE], 30, false);
+		Spike.animation.play("idle");
+	}
+
+	public static function getRightSpikeAnim(Spike:FlxSprite){
+		Spike.loadGraphic(SPRITESHEET, true, 16, 16);
+		Spike.animation.add("idle", [Reg.TILE_RIGHT_SPIKE], 30, false);
+		Spike.animation.play("idle");
 	}
 }

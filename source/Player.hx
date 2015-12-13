@@ -59,9 +59,7 @@ class Player extends FlxSprite
 
         updateControls();
         updateAnimations();
-
         super.update();
-     
     }
 
     override public function destroy():Void
@@ -117,7 +115,7 @@ class Player extends FlxSprite
 
         FlxG.worldBounds.y = y - FlxG.height;
 
-        effects.recycle(Effect).init(new FlxPoint(x,y), Reg.EFFECT_JUMPDUST);
+        createJumpDust();
     }
 
     private function checkIfCanJump(){
@@ -134,7 +132,8 @@ class Player extends FlxSprite
         FlxG.timeScale = 0.6;       
         FlxG.camera.flash(0xFFFFFFFF, 0.5, turnOffSlowMo);
         FlxG.camera.shake(0.03,0.1);
-        PlayState.emitWhiteGibs(this);
+        // PlayState.emitWhiteGibs(this);
+        PlayState.emitBloodGibs(this);
     }
 
     public function turnOffSlowMo(){
@@ -143,5 +142,9 @@ class Player extends FlxSprite
 
     public function pickPowerup(Type:Int){
         trace("pick powerup!");
+    }
+
+    private function createJumpDust(){
+        effects.recycle(Effect).init(new FlxPoint(x,y), Reg.EFFECT_JUMPDUST);
     }
 }

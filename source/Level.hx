@@ -38,8 +38,8 @@ class Level {
 		var chunk:Chunk = new Chunk(ChunkType);
 		chunk.loadMap(Assets.getText("assets/data/map" + Type + ".csv"), Reg.SPRITESHEET, Reg.T_WIDTH, Reg.T_HEIGHT,0,0,0);
 
-		var oneDirectionTiles = [Reg.TILE_ONE_DIRECTION2, Reg.TILE_ONE_DIRECTION];
-		for(i in oneDirectionTiles){
+		// Setup one d tiles
+		for(i in Reg.TILE_ONE_DIRECTION){
 			chunk.setTileProperties(i,FlxObject.UP);
 		}
 
@@ -65,12 +65,14 @@ class Level {
 		var chunkY:Float = LastY - (chunk.heightInTiles * Reg.T_HEIGHT);
 
 		// create destructible
-		if(chunk.getTileCoords(Reg.TILE_DESTRUCTIBLE, false) != null){
-			for(Point in chunk.getTileCoords(Reg.TILE_DESTRUCTIBLE, false)){
-				chunk.setTile(Math.round(Point.x/Reg.T_WIDTH), Math.round(Point.y/Reg.T_HEIGHT), -1);
-				Point.y = chunkY + Point.y;
-				Point.x = chunk.x + Point.x;
-				createDesctructibleBlock(Point);
+		for(tile in Reg.TILE_DESTRUCTIBLE){
+			if(chunk.getTileCoords(tile, false) != null){
+				for(Point in chunk.getTileCoords(tile, false)){
+					chunk.setTile(Math.round(Point.x/Reg.T_WIDTH), Math.round(Point.y/Reg.T_HEIGHT), -1);
+					Point.y = chunkY + Point.y;
+					Point.x = chunk.x + Point.x;
+					createDesctructibleBlock(Point);
+				}
 			}
 		}
 
@@ -94,6 +96,18 @@ class Level {
 			}	
 		}
 
+		// create static spikes
+		for(i in Reg.TILE_STATIC_SPIKES){
+			if(chunk.getTileCoords(i, false) != null){
+				for(Point in chunk.getTileCoords(i, false)){
+					chunk.setTile(Math.round(Point.x/Reg.T_WIDTH), Math.round(Point.y/Reg.T_HEIGHT), -1);
+					Point.y = chunkY + Point.y;
+					Point.x = chunk.x + Point.x;
+					createSpike(Point, i);
+				}	
+			}
+		}
+
 		chunk.y = chunkY;
 
 		chunk.revive();
@@ -114,5 +128,9 @@ class Level {
 
 	private function createSawblade(Point:FlxPoint):Void{
 		playState.hazards.recycle(Hazard).init(Point, Reg.HAZARD_SAWBLADE);
+	}
+
+	private function createSpike(Point:FlxPoint, Type:Int):Void{
+		playState.hazards.recycle(Hazard).init(Point, Type);
 	}
 }

@@ -38,12 +38,18 @@ class PlayState extends FlxState
 	public static var level:Level;
 	public static var previousTileHeight:Int;
 
-	// Effects stuff
+	// Gibs
 	public static var whiteGibs:FlxEmitter;
+	public static var bloodGibs:FlxEmitter;
+	public static var explosionGibs:FlxEmitter;
+	public static var crateGibs:FlxEmitter;
+	public static var bigCrateGibs:FlxEmitter;
 
 	override public function create():Void
 	{
 		super.create();
+
+		Reg.init();
 
 		lastChunkY = 0;
 
@@ -52,8 +58,15 @@ class PlayState extends FlxState
 		setupGibs();
 		setupScore();
 
-		add(player);
+		// gibs
 		add(whiteGibs);
+		add(crateGibs);
+		add(bigCrateGibs);
+		add(bloodGibs);
+		add(explosionGibs);
+
+		// All other objects
+		add(player);
 		add(destructibleBlocks);
 		add(powerups);
 		add(hazards);
@@ -61,10 +74,15 @@ class PlayState extends FlxState
 		add(chunks);
 		add(score);
 
+
 		setupCamera();
 
 		levelCollidable.add(player);
+
 		levelCollidable.add(whiteGibs);
+		levelCollidable.add(crateGibs);
+		levelCollidable.add(bigCrateGibs);
+		levelCollidable.add(bloodGibs);
 
 		FlxG.mouse.visible = false;
 	}
@@ -99,7 +117,7 @@ class PlayState extends FlxState
 
 	private function collisionUpdate():Void
 	{
-		FlxG.collide(levelCollidable, chunks, onCollision);
+		FlxG.collide(levelCollidable, chunks);
 		FlxG.collide(player, destructibleBlocks, onPlayerDestructibleBlocksCollision);
 		FlxG.collide(player, hazards, onPlayerHazardCollision);
 		FlxG.overlap(player, powerups, onPlayerPowerupCollision);
@@ -112,7 +130,7 @@ class PlayState extends FlxState
 
 	private function onPlayerDestructibleBlocksCollision(Player:Player, Block:Block):Void{
 		// if(Player.velocity.y >= 0){
-			emitWhiteGibs(Block);
+			// emitWhiteGibs(Block);
 			Block.hit();
 		// }
 	}
@@ -135,7 +153,7 @@ class PlayState extends FlxState
 	public function generateChunk(Type:Int = null):Chunk
 	{
 		if(Type == null) {
-			Type = FlxRandom.intRanged(1,3);
+			Type = FlxRandom.intRanged(1,4);
 		}
 
 		// var chunk:Chunk = new Chunk(Type, previousTileHeight, lastChunkY);
@@ -178,7 +196,24 @@ class PlayState extends FlxState
 	public static function emitWhiteGibs(Position:FlxObject){
 		whiteGibs.at(Position);
 		whiteGibs.start(true,2,0.2,30,10);
-		// new FlxTimer(2, resetLevel);
+	}
+
+	public static function emitCrateGibs(Position:FlxObject){
+		crateGibs.at(Position);
+		crateGibs.start(true,2,0.2,10,10);
+
+		bigCrateGibs.at(Position);
+		bigCrateGibs.start(true,2,0.2,5,10);
+	}
+
+	public static function emitBloodGibs(Position:FlxObject){
+		bloodGibs.at(Position);
+		bloodGibs.start(true,2,0.2,20,10);
+	}
+
+	public static function emitExplosionGibs(Position:FlxObject){
+		explosionGibs.at(Position);
+		explosionGibs.start(false,0.05,0.005,5,0.07);
 	}
 
 	/**
@@ -188,7 +223,7 @@ class PlayState extends FlxState
 	public function setupPlayer():Void
 	{
 		effects = new FlxTypedGroup<Effect>();
-		effects.maxSize = 20;
+		// effects.maxSize = 20;
 
 		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, 0, effects);
 		cameraTarget = new FlxSprite(player.x,player.y);
@@ -206,16 +241,16 @@ class PlayState extends FlxState
 		levelCollidable = new FlxGroup();
 
 		chunks = new FlxTypedGroup<Chunk>();
-		chunks.maxSize = 10;
+		// chunks.maxSize = 10;
 
 		powerups = new FlxTypedGroup<Powerup>();
-		powerups.maxSize = 5;
+		// powerups.maxSize = 5;
 
 		hazards = new FlxTypedGroup<Hazard>();
-		hazards.maxSize = 20;
+		// hazards.maxSize = 20;
 
 		destructibleBlocks = new FlxTypedGroup<Block>();
-		destructibleBlocks.maxSize = 50;
+		// destructibleBlocks.maxSize = 50;
 
 		level = new Level(player, 1, destructibleBlocks, this);
 
@@ -244,6 +279,37 @@ class PlayState extends FlxState
 		whiteGibs.gravity = 400;
 		whiteGibs.bounce = 0.5;
 		whiteGibs.makeParticles(Reg.GIBS_SPRITESHEET, 100, 20, true, 0.5);
+	
+		crateGibs = new FlxEmitter();
+		crateGibs.setXSpeed(-200, 200);
+		crateGibs.setYSpeed(-200, 200);
+		crateGibs.setRotation( -360, 0);
+		crateGibs.gravity = 400;
+		crateGibs.bounce = 0.5;
+		crateGibs.makeParticles(Reg.CRATE_GIBS_SPRITESHEET, 100, 20, true, 0.5);
+	
+		bigCrateGibs = new FlxEmitter();
+		bigCrateGibs.setXSpeed(-100, 100);
+		bigCrateGibs.setYSpeed(-100, 100);
+		bigCrateGibs.setRotation( -360, 0);
+		bigCrateGibs.gravity = 400;
+		bigCrateGibs.bounce = 0.5;
+		bigCrateGibs.makeParticles(Reg.BIG_CRATE_GIBS_SPRITESHEET, 100, 20, true, 0.5);
+	
+		bloodGibs = new FlxEmitter();
+		bloodGibs.setXSpeed(-100, 100);
+		bloodGibs.setYSpeed(-100, 100);
+		bloodGibs.setRotation( -360, 0);
+		bloodGibs.gravity = 400;
+		bloodGibs.bounce = 0.5;
+		bloodGibs.makeParticles(Reg.BLOOD_GIBS_SPRITESHEET, 100, 20, true, 0.5);
+	
+		explosionGibs = new FlxEmitter();
+		explosionGibs.setXSpeed(-100, 100);
+		explosionGibs.setYSpeed(-100, 100);
+		explosionGibs.setRotation(-20, 0);
+		explosionGibs.gravity = 0;
+		explosionGibs.makeParticles(Reg.EXPLOSION_GIBS_SPRITESHEET, 100, 20, true, 0.5);
 	}
 
 	private function setupScore():Void
