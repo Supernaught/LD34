@@ -74,11 +74,9 @@ class PlayState extends FlxState
 		add(chunks);
 		add(score);
 
-
 		setupCamera();
 
 		levelCollidable.add(player);
-
 		levelCollidable.add(whiteGibs);
 		levelCollidable.add(crateGibs);
 		levelCollidable.add(bigCrateGibs);
@@ -103,6 +101,7 @@ class PlayState extends FlxState
 		forDebug();
 
 		FlxSpriteUtil.screenWrap(player, true, true, false, false);
+		hazards.forEachAlive(screenWrap);
 	}	
 
 	private function forDebug(){
@@ -145,7 +144,14 @@ class PlayState extends FlxState
 	}
 
 	public function cameraUpdate():Void{
-		cameraTarget.setPosition(FlxG.width/2 - cameraTarget.width/2, player.y);
+
+		if(player.alive){
+			cameraTarget.y -= 1;
+			if(player.y >= (FlxG.camera.scroll.y + FlxG.height + 30)){
+				cameraTarget.y = player.y;
+				player.die();
+			}
+		}
 		// FlxG.camera.scroll.y = (player.y - FlxG.height/2);
 		// FlxTween.tween(FlxG.camera.scroll, {x:0, y:player.y}, 2);
 	}
@@ -193,6 +199,10 @@ class PlayState extends FlxState
 		}
 	}
 
+	private function screenWrap(H:Hazard):Void{
+		FlxSpriteUtil.screenWrap(H, true, true, false, false);
+	}
+
 	public static function emitWhiteGibs(Position:FlxObject){
 		whiteGibs.at(Position);
 		whiteGibs.start(true,2,0.2,30,10);
@@ -226,7 +236,9 @@ class PlayState extends FlxState
 		// effects.maxSize = 20;
 
 		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, 0, effects);
-		cameraTarget = new FlxSprite(player.x,player.y);
+		cameraTarget = new FlxSprite(FlxG.width/2, player.y);
+		// cameraTarget.velocity.y = 10;
+		// cameraTarget.setPosition();
 
 		FlxG.timeScale = 1;
 	}
@@ -264,7 +276,7 @@ class PlayState extends FlxState
 	}
 
 	private function setupCamera():Void
-	{
+	{		
 		FlxG.camera.follow(cameraTarget, FlxCamera.STYLE_LOCKON);
 		FlxG.camera.followLerp = 10;
 		FlxG.camera.bgColor = 0xff7fe6ef;
@@ -314,6 +326,7 @@ class PlayState extends FlxState
 
 	private function setupScore():Void
 	{
+		Reg.score = 0;
 		score = new FlxText(0, 0, FlxG.width); // x, y, width
 		score.text = "";
 		score.setFormat(null, 8, 0xFFFFFFFF, "center");
