@@ -32,6 +32,7 @@ class Reg
 
 	// Assets
 	public inline static var TILESHEET:String = "assets/images/tiles.png";
+	public inline static var CRATE_GIBS_SPRITESHEET:String = "assets/images/crate_gibs.png";
 	public inline static var GIBS_SPRITESHEET:String = "assets/images/gibs.png";
 	public inline static var SPRITESHEET:String = "assets/images/tileset.png";
 
