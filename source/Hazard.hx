@@ -40,6 +40,16 @@ class Hazard extends FlxSprite
 			case Reg.TILE_RIGHT_SPIKE:
 			Reg.getRightSpikeAnim(this);
 		}
+
+		width = 1;
+		height = 1;
+		offset.set(Reg.T_WIDTH/2,Reg.T_HEIGHT/2);
+		x += Reg.T_WIDTH/2;
+		y += Reg.T_HEIGHT/2;
+	}
+
+	override public function update(){
+		super.update();
 	}
 
 	public function picked(){

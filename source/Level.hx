@@ -60,7 +60,6 @@ class Level {
 	}
 
 	public function getChunk(ChunkType:Int, LastY:Float = 0):Chunk{
-		trace("creating chunk: " + ChunkType);
 		var chunk:Chunk = createUsableChunk(ChunkType);
 
 		var chunkY:Float = LastY - (chunk.heightInTiles * Reg.T_HEIGHT);
@@ -135,7 +134,6 @@ class Level {
 	}
 
 	private function createPowerup(Point:FlxPoint):Void{
-		trace("powerup at " + Point);
 		playState.powerups.recycle(Powerup).init(Point);
 	}
 

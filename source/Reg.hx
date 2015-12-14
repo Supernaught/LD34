@@ -10,6 +10,7 @@ class Reg
 	public static var score:Int = 0;
 	public static var highscore:Int = 0;
 	public static var scoreLabel:Int = 0;
+	public static var gameOver:Bool = false;
 
 	// Tile Values
 	public inline static var TILE_GROUND = 1;
@@ -27,10 +28,11 @@ class Reg
 	// Game data
 	public inline static var T_WIDTH:Int = 16;
 	public inline static var T_HEIGHT:Int = 16;
-	public inline static var MAPS_COUNT:Int = 4;
+	public inline static var MAPS_COUNT:Int = 13;
 	public inline static var BG_COLOR:Int = 0xff81ffd7;
 	public inline static var BG_COLOR_BLUE:Int = 0xff81fffb;
 	public inline static var BG_COLOR_GREEN:Int = 0xff81ffd7;
+	public inline static var BG_COLOR_YELLOW:Int = 0xffffe196;
 	public static var BG_COLORS;
 
 
@@ -47,11 +49,20 @@ class Reg
 
 	// Fonts
 	public static inline var FONT_MINECRAFTER:String = "assets/minecrafter.ttf";
+	public static inline var FONT_04B19:String = "assets/04b19.ttf";
+	public static inline var FONT_WENDY:String = "assets/wendy.ttf";
+
+	// UI Stuff
+	public static inline var GAME_TITLE:String = "POUNCE";
+	public static inline var CONTROLS:String = "Z - SWITCH\nUP - JUMP";
+	public static inline var CREDIT:String = "CREATED BY @ _SUPERNAUGHT\nFOR LUDUM DARE 34";
+	public static inline var TWITTER:String = "@ ALPHNSUS / CODE\n@ M0M0RG0TH / ART";
 
 	// Audio
 	public static inline var MUSIC_PATH:String = "assets/music/music.mp3";
 
 	// Assets
+	public inline static var SQUARE_GIBS_SPRITESHEET:String = "assets/images/square_gibs.png";
 	public inline static var WHITE_GIBS_SPRITESHEET:String = "assets/images/white_gibs.png";
 	public inline static var CRATE_GIBS_SPRITESHEET:String = "assets/images/crate_gibs.png";
 	public inline static var BLOOD_GIBS_SPRITESHEET:String = "assets/images/blood_gibs.png";
@@ -69,7 +80,7 @@ class Reg
 
 		TILE_WALKABLE = [31, 32, 33, 34, 38, 39, 40, 41];
 
-		BG_COLORS = [BG_COLOR_GREEN, BG_COLOR_BLUE];
+		BG_COLORS = [BG_COLOR_GREEN, BG_COLOR_BLUE, BG_COLOR_YELLOW];
 	}
 
 	public static function getPlayerAnim(Player:FlxSprite){

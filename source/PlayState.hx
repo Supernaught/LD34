@@ -12,6 +12,7 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxRandom;
+import flixel.util.FlxTimer;
 import flixel.util.FlxPoint;
 import flixel.util.FlxSave;
 import flixel.tweens.FlxTween;
@@ -29,12 +30,14 @@ class PlayState extends FlxState
 	// UI stuff
 	var score:FlxText;
 	public static var gameSave:FlxSave;
-	public var mainMenuTexts:FlxGroup;
+	public var mainMenuStuff:FlxGroup;
 
 	// Title screen stuff
 	var gameTitle:FlxText;
 	var highscore:FlxText;
 	var pressToStart:FlxText;
+	var credit:FlxText;
+	var twitter:FlxText;
 	public static var gameStart:Bool;
 
 	// Level stuff
@@ -52,6 +55,7 @@ class PlayState extends FlxState
 
 	// Gibs
 	public static var whiteGibs:FlxEmitter;
+	public static var squareGibs:FlxEmitter;
 	public static var bloodGibs:FlxEmitter;
 	public static var explosionGibs:FlxEmitter;
 	public static var crateGibs:FlxEmitter;
@@ -60,6 +64,7 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+		FlxG.stage.quality = flash.display.StageQuality.LOW;
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Reg.MUSIC_PATH, 1, true);
@@ -77,6 +82,7 @@ class PlayState extends FlxState
 
 		// gibs
 		add(whiteGibs);
+		add(squareGibs);
 		add(crateGibs);
 		add(bigCrateGibs);
 		add(bloodGibs);
@@ -91,15 +97,19 @@ class PlayState extends FlxState
 		add(chunks);
 
 		// add UIs
-		mainMenuTexts = new FlxGroup();
+		mainMenuStuff = new FlxGroup();
 		add(score);
-		add(gameTitle);
-		add(pressToStart);
-		add(highscore);
+		// add(gameTitle);
+		// add(pressToStart);
+		// add(highscore);
 
-		mainMenuTexts.add(gameTitle);
-		mainMenuTexts.add(pressToStart);
-		mainMenuTexts.add(highscore);
+		mainMenuStuff.add(gameTitle);
+		mainMenuStuff.add(pressToStart);
+		mainMenuStuff.add(credit);
+		mainMenuStuff.add(twitter);
+		// mainMenuStuff.add(highscore);
+
+		add(mainMenuStuff);
 
 		setupCamera();
 
@@ -120,18 +130,22 @@ class PlayState extends FlxState
 	override public function update():Void
 	{
 		super.update();
+		
+		collisionUpdate();
+
 		if(!gameStart){
 			titleScreenUpdate();
+		} else {
+			cameraUpdate();
+			chunksUpdate();
+			scoreUpdate();
+			
 		}
-		collisionUpdate();
-		cameraUpdate();
-		chunksUpdate();
-		scoreUpdate();
+		hazards.forEachAlive(screenWrap);
+		FlxSpriteUtil.screenWrap(player, true, true, false, false);
 
 		forDebug();
 
-		FlxSpriteUtil.screenWrap(player, true, true, false, false);
-		hazards.forEachAlive(screenWrap);
 	}	
 
 	private function forDebug(){
@@ -153,23 +167,27 @@ class PlayState extends FlxState
 	}
 
 	private function titleScreenUpdate():Void{
-		if(FlxG.keys.pressed.Z || FlxG.keys.pressed.SPACE){
+		if(!Reg.gameOver && (FlxG.keys.pressed.Z || FlxG.keys.pressed.SPACE)){
 			startGame();
 		}
 	}
 
 	private function startGame(){
+		flashWhite(null);
+		score.text = 0 + "";
 		gameStart = true;
 		player.gameStart();
 
+		cameraTarget.y += FlxG.width/3;
 		FlxG.camera.follow(cameraTarget, FlxCamera.STYLE_LOCKON);
 		FlxG.camera.followLerp = 10;
 
-		mainMenuTexts.kill();
+		mainMenuStuff.kill();
 	}
 
 	public static function endGame(){
 		gameStart = false;
+		Reg.gameOver = true;
 
 		// display gameover screen if exists
 		if(Reg.score > Reg.highscore){
@@ -204,13 +222,12 @@ class PlayState extends FlxState
 	}
 
 	public function cameraUpdate():Void{
-
 		if(player.alive && gameStart){
 			cameraTarget.y -= cameraTargetSpeed;
 			// cameraTarget.y = player.y;
 			if(player.y >= (FlxG.camera.scroll.y + FlxG.height + 30) ||
 				player.y <= (FlxG.camera.scroll.y - 50)){
-				cameraTarget.y = player.y;
+				cameraTarget.y = player.y - FlxG.height/3;
 				player.die();
 			}
 		}
@@ -283,6 +300,11 @@ class PlayState extends FlxState
 		whiteGibs.start(true,2,0.2,20,10);
 	}
 
+	public static function emitSquareGibs(Position:FlxObject){
+		squareGibs.at(Position);
+		squareGibs.start(true,0.1,0,10,0.1);
+	}
+
 	public static function emitCrateGibs(Position:FlxObject){
 		crateGibs.at(Position);
 		crateGibs.start(true,2,0.2,10,10);
@@ -311,11 +333,12 @@ class PlayState extends FlxState
 		// effects.maxSize = 20;
 
 		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, 0, effects);
-		cameraTarget = new FlxSprite(FlxG.width/2, player.y);
+		cameraTarget = new FlxSprite(FlxG.width/2, player.y - FlxG.width/4);
 		cameraTargetSpeed = CAMERA_TARGET_START_SPEED;
 		// cameraTarget.velocity.y = 10;
 		// cameraTarget.setPosition();
 
+		Reg.gameOver = false;
 		FlxG.timeScale = 1;
 	}
 
@@ -354,7 +377,7 @@ class PlayState extends FlxState
 	private function setupCamera():Void
 	{		
 		FlxG.camera.scroll.y = player.y - FlxG.height;
-		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON);
+		FlxG.camera.follow(cameraTarget, FlxCamera.STYLE_LOCKON);
 		FlxG.camera.followLerp = 20;
 		// FlxG.camera.scroll.y = cameraTarget.y - FlxG.height/4;
 
@@ -394,7 +417,6 @@ class PlayState extends FlxState
 		bloodGibs.setRotation( -360, 0);
 		bloodGibs.gravity = 400;
 		bloodGibs.bounce = 0.5;
-		bloodGibs.setScale(1,2,1,1);
 		bloodGibs.makeParticles(Reg.BLOOD_GIBS_SPRITESHEET, 100, 20, true, 0.5);
 	
 		explosionGibs = new FlxEmitter();
@@ -402,16 +424,26 @@ class PlayState extends FlxState
 		explosionGibs.setYSpeed(-100, 100);
 		explosionGibs.setRotation(-20, 0);
 		explosionGibs.gravity = 0;
-		explosionGibs.setScale(1,2,0.3,0.5);
+		explosionGibs.setScale(1,2.2,0.3,0.5);
 		explosionGibs.makeParticles(Reg.EXPLOSION_GIBS_SPRITESHEET, 100, 20, true, 0.5);
+	
+		squareGibs = new FlxEmitter();
+		squareGibs.setXSpeed(-200, 200);
+		squareGibs.setYSpeed(-50, 0);
+		squareGibs.setRotation(0,0);
+		squareGibs.gravity = 0;
+		squareGibs.setScale(1,1.5,0.3,0.5);
+		squareGibs.makeParticles(Reg.SQUARE_GIBS_SPRITESHEET, 100, 0, true, 0.5);
 	}
 
 	private function setupScore():Void
 	{
 		Reg.score = 0;
-		score = new FlxText(0, 0, FlxG.width); // x, y, width
-		score.text = "";
-		score.setFormat(null, 16, 0xFFFFFFFF, "center");
+		score = new FlxText(0, 2, FlxG.width); // x, y, width
+		score.text = "HI-SCORE " + Reg.highscore;
+		score.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
+		score.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
+		score.shadowOffset.set(0,1);
 		score.scrollFactor.set(0,0);
 
 		gameSave = new FlxSave();
@@ -428,18 +460,40 @@ class PlayState extends FlxState
 		gameStart = false;
 
 		gameTitle = new FlxText(0,100,FlxG.width);
-		gameTitle.text = "GAME TITLE";
-		gameTitle.setFormat(Reg.FONT_MINECRAFTER, 48, 0xFFFFFFFF, "center");
+		gameTitle.text = Reg.GAME_TITLE;
+		gameTitle.setFormat(Reg.FONT_04B19, 56, 0xFFFFFFFF, "center");
+		gameTitle.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
+		gameTitle.shadowOffset.set(0,5);
 		gameTitle.scrollFactor.set(0,0);
 
-		highscore = new FlxText(0,200,FlxG.width);
-		highscore.text = "HI: " + Reg.highscore;
-		highscore.setFormat(Reg.FONT_MINECRAFTER, 10, 0xFFFFFFFF, "center");
-		highscore.scrollFactor.set(0,0);
+		// highscore = new FlxText(0,175,FlxG.width);
+		// highscore.text = "HI-SCORE: " + Reg.highscore;
+		// highscore.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
+		// highscore.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
+		// highscore.shadowOffset.set(0,2);
+		// highscore.scrollFactor.set(0,0);
 
-		pressToStart = new FlxText(0,250,FlxG.width);
-		pressToStart.text = "Z - SWITCH DIRECTION        SPACE - JUMP";
-		pressToStart.setFormat(Reg.FONT_MINECRAFTER, 10, 0xFFFFFFFF, "center");
+		pressToStart = new FlxText(0,240,FlxG.width);
+		pressToStart.text = Reg.CONTROLS;
+		pressToStart.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
+		pressToStart.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
+		pressToStart.shadowOffset.set(0,1);
 		pressToStart.scrollFactor.set(0,0);
+
+		credit = new FlxText(5,FlxG.height - 25,FlxG.width);
+		credit.text = Reg.CREDIT;
+		credit.setFormat(Reg.FONT_WENDY, 10, 0xFFFFFFFF, "left");
+		credit.scrollFactor.set(0,0);
+		credit.antialiasing = false;
+
+		twitter = new FlxText(0, FlxG.height - 25, FlxG.width - 5);
+		twitter.text = Reg.TWITTER;
+		twitter.setFormat(Reg.FONT_WENDY, 10, 0xFFFFFFFF, "right");
+		twitter.scrollFactor.set(0,0);
+		twitter.antialiasing = false;
+	}
+
+	private function flashWhite(Timer:FlxTimer = null){
+		FlxG.camera.flash(0xFFFFFFFF, 0.1, null, true);
 	}
 }

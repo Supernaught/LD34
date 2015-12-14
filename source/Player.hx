@@ -84,11 +84,7 @@ class Player extends FlxSprite
             acceleration.x *= -1;
         }
 
-        if(FlxG.keys.pressed.X){
-            jump();
-        }
-
-        if(FlxG.keys.pressed.SPACE){
+        if(FlxG.keys.pressed.UP){
             if(canJump){
                 jump();
             }
@@ -124,13 +120,13 @@ class Player extends FlxSprite
 
     public function bounceOffCrate():Void
     {
-        addJumpForce();
+        addJumpForce(1.5);
         // velocity.y = -jumpForce;
         // FlxG.worldBounds.y = y - FlxG.height;
     }
 
-    public function addJumpForce():Void{
-        velocity.y = -jumpForce;
+    public function addJumpForce(Divider:Float = 1):Void{
+        velocity.y = -jumpForce / Divider;
         FlxG.worldBounds.y = y - FlxG.height;
         canJump = false;
     }
@@ -148,7 +144,7 @@ class Player extends FlxSprite
         // trace("die");
         kill();
         FlxG.timeScale = 0.6;       
-        FlxG.camera.flash(0xFFFFFFFF, 0.5, turnOffSlowMo);
+        FlxG.camera.flash(0xFFFFFFFF, 0.4, turnOffSlowMo, true);
         FlxG.camera.shake(0.03,0.1);
         PlayState.emitBloodGibs(this);
         PlayState.emitWhiteGibs(this);
@@ -156,7 +152,7 @@ class Player extends FlxSprite
 
         Sounds.death();
 
-        new FlxTimer(2, restartGame);
+        new FlxTimer(3, restartGame);
     }
 
     public function turnOffSlowMo(){
@@ -164,11 +160,11 @@ class Player extends FlxSprite
     }
 
     public function pickPowerup(Type:Int){
-        trace("pick powerup!");
     }
 
     private function createJumpDust(){
         effects.recycle(Effect).init(new FlxPoint(x,y), Reg.EFFECT_JUMPDUST);
+        PlayState.emitSquareGibs(this);
     }
 
     private function restartGame(FlxTimer:FlxTimer):Void{

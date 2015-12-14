@@ -30,7 +30,6 @@ class Block extends FlxSprite
 		super.update();
 		if(y > FlxG.camera.scroll.y + FlxG.height * 1.5){
 			kill();
-			trace('kill ' + y);
 		}
 	}
 
