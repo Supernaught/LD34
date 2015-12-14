@@ -140,7 +140,7 @@ class PlayState extends FlxState
 	private function collisionUpdate():Void
 	{
 		FlxG.collide(levelCollidable, chunks);
-		FlxG.collide(player, destructibleBlocks, onPlayerDestructibleBlocksCollision);
+		FlxG.overlap(player, destructibleBlocks, onPlayerDestructibleBlocksCollision);
 		FlxG.collide(player, hazards, onPlayerHazardCollision);
 		FlxG.overlap(player, powerups, onPlayerPowerupCollision);
 	}
@@ -179,6 +179,10 @@ class PlayState extends FlxState
 	private function onPlayerDestructibleBlocksCollision(Player:Player, Block:Block):Void{
 		// if(Player.velocity.y >= 0){
 			// emitWhiteGibs(Block);
+			if(Block.y > Player.y){
+				player.bounceOffCrate();
+			}
+
 			Block.hit();
 		// }
 	}
@@ -195,7 +199,7 @@ class PlayState extends FlxState
 	public function cameraUpdate():Void{
 
 		if(player.alive && gameStart){
-			cameraTarget.y -= 1.2;
+			cameraTarget.y -= 1.5;
 			// cameraTarget.y = player.y;
 			if(player.y >= (FlxG.camera.scroll.y + FlxG.height + 30) ||
 				player.y <= (FlxG.camera.scroll.y - 10)){
@@ -323,7 +327,7 @@ class PlayState extends FlxState
 		player.y = (chunk.y + chunk.height) - (Reg.T_HEIGHT*2);
 
 		// Create 2nd chunk
-		generateChunk(4);
+		generateChunk();
 	}
 
 	private function setupCamera():Void

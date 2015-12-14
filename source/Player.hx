@@ -123,6 +123,13 @@ class Player extends FlxSprite
         createJumpDust();
     }
 
+    public function bounceOffCrate():Void
+    {
+        jump();
+        // velocity.y = -jumpForce;
+        // FlxG.worldBounds.y = y - FlxG.height;
+    }
+
     private function checkIfCanJump(){
         if(isTouching(FlxObject.FLOOR)){
             if(!canJump){
