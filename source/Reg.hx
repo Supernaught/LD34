@@ -28,7 +28,7 @@ class Reg
 	// Game data
 	public inline static var T_WIDTH:Int = 16;
 	public inline static var T_HEIGHT:Int = 16;
-	public inline static var MAPS_COUNT:Int = 13;
+	public inline static var MAPS_COUNT:Int = 15;
 	public inline static var BG_COLOR:Int = 0xff81ffd7;
 	public inline static var BG_COLOR_BLUE:Int = 0xff81fffb;
 	public inline static var BG_COLOR_GREEN:Int = 0xff81ffd7;
@@ -53,7 +53,7 @@ class Reg
 	public static inline var FONT_WENDY:String = "assets/wendy.ttf";
 
 	// UI Stuff
-	public static inline var GAME_TITLE:String = "POUNCE";
+	public static inline var GAME_TITLE:String = "JUMPR";
 	public static inline var CONTROLS:String = "Z - SWITCH\nUP - JUMP";
 	public static inline var CREDIT:String = "CREATED BY @ _SUPERNAUGHT\nFOR LUDUM DARE 34";
 	public static inline var TWITTER:String = "@ ALPHNSUS / CODE\n@ M0M0RG0TH / ART";

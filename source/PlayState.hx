@@ -461,7 +461,7 @@ class PlayState extends FlxState
 
 		gameTitle = new FlxText(0,100,FlxG.width);
 		gameTitle.text = Reg.GAME_TITLE;
-		gameTitle.setFormat(Reg.FONT_04B19, 56, 0xFFFFFFFF, "center");
+		gameTitle.setFormat(Reg.FONT_04B19, 70, 0xFFFFFFFF, "center");
 		gameTitle.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
 		gameTitle.shadowOffset.set(0,5);
 		gameTitle.scrollFactor.set(0,0);
