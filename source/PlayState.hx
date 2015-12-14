@@ -16,11 +16,14 @@ import flixel.util.FlxPoint;
 import flixel.util.FlxSave;
 import flixel.tweens.FlxTween;
 import flixel.tile.FlxTilemap;
+import flixel.system.FlxSound;
 import flixel.effects.particles.FlxEmitter;
 
 class PlayState extends FlxState
 {
 	public var cameraTarget:FlxSprite;
+	public var cameraTargetSpeed:Float;
+	public inline static var CAMERA_TARGET_START_SPEED = 1.1;
 	public static var player:Player;
 
 	// UI stuff
@@ -57,6 +60,10 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
+		{
+			FlxG.sound.playMusic(Reg.MUSIC_PATH, 1, true);
+		}
 
 		Reg.init();
 
@@ -139,7 +146,7 @@ class PlayState extends FlxState
 
 	private function collisionUpdate():Void
 	{
-		FlxG.collide(levelCollidable, chunks);
+		FlxG.collide(levelCollidable, chunks, onCollision);
 		FlxG.overlap(player, destructibleBlocks, onPlayerDestructibleBlocksCollision);
 		FlxG.collide(player, hazards, onPlayerHazardCollision);
 		FlxG.overlap(player, powerups, onPlayerPowerupCollision);
@@ -199,10 +206,10 @@ class PlayState extends FlxState
 	public function cameraUpdate():Void{
 
 		if(player.alive && gameStart){
-			cameraTarget.y -= 1.5;
+			cameraTarget.y -= cameraTargetSpeed;
 			// cameraTarget.y = player.y;
 			if(player.y >= (FlxG.camera.scroll.y + FlxG.height + 30) ||
-				player.y <= (FlxG.camera.scroll.y - 10)){
+				player.y <= (FlxG.camera.scroll.y - 50)){
 				cameraTarget.y = player.y;
 				player.die();
 			}
@@ -242,6 +249,19 @@ class PlayState extends FlxState
 		Reg.score = (Reg.score > Math.round(Math.abs(player.y/100))) ? Reg.score : Math.round(Math.abs(player.y/100));
 		Reg.scoreLabel = Math.round(Reg.score);
 		score.text = "" + Reg.scoreLabel;
+
+		if(Reg.score == 10 && cameraTargetSpeed == CAMERA_TARGET_START_SPEED){
+			cameraTargetSpeed += 0.2;
+		}
+		if(Reg.score == 20 && cameraTargetSpeed == CAMERA_TARGET_START_SPEED + 0.2){
+			cameraTargetSpeed += 0.2;
+		}
+		if(Reg.score == 30 && cameraTargetSpeed == CAMERA_TARGET_START_SPEED + 0.4){
+			cameraTargetSpeed += 0.2;
+		}
+		if(Reg.score == 40 && cameraTargetSpeed == CAMERA_TARGET_START_SPEED + 0.6){
+			cameraTargetSpeed += 0.2;
+		}
 	}
 
 	private function updateChunk(C:Chunk):Void
@@ -278,7 +298,7 @@ class PlayState extends FlxState
 
 	public static function emitExplosionGibs(Position:FlxObject){
 		explosionGibs.at(Position);
-		explosionGibs.start(false,0.05,0.005,5,0.07);
+		explosionGibs.start(false,0.05,0.005,5,0.1);
 	}
 
 	/**
@@ -292,6 +312,7 @@ class PlayState extends FlxState
 
 		player = new Player(FlxG.width/2 - Reg.T_WIDTH/2, 0, effects);
 		cameraTarget = new FlxSprite(FlxG.width/2, player.y);
+		cameraTargetSpeed = CAMERA_TARGET_START_SPEED;
 		// cameraTarget.velocity.y = 10;
 		// cameraTarget.setPosition();
 
@@ -336,7 +357,8 @@ class PlayState extends FlxState
 		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON);
 		FlxG.camera.followLerp = 20;
 		// FlxG.camera.scroll.y = cameraTarget.y - FlxG.height/4;
-		FlxG.camera.bgColor = Reg.BG_COLOR;
+
+		FlxG.camera.bgColor = Reg.getRandomBgColor();
 	}
 
 	private function setupGibs():Void
@@ -347,6 +369,7 @@ class PlayState extends FlxState
 		whiteGibs.setRotation( -360, 0);
 		whiteGibs.gravity = 400;
 		whiteGibs.bounce = 0.5;
+		whiteGibs.setScale(1,2,1,1);
 		whiteGibs.makeParticles(Reg.WHITE_GIBS_SPRITESHEET, 100, 20, true, 0.5);
 	
 		crateGibs = new FlxEmitter();
@@ -366,11 +389,12 @@ class PlayState extends FlxState
 		bigCrateGibs.makeParticles(Reg.BIG_CRATE_GIBS_SPRITESHEET, 100, 20, true, 0.5);
 	
 		bloodGibs = new FlxEmitter();
-		bloodGibs.setXSpeed(-100, 100);
-		bloodGibs.setYSpeed(-100, 100);
+		bloodGibs.setXSpeed(-200, 200);
+		bloodGibs.setYSpeed(-200, 200);
 		bloodGibs.setRotation( -360, 0);
 		bloodGibs.gravity = 400;
 		bloodGibs.bounce = 0.5;
+		bloodGibs.setScale(1,2,1,1);
 		bloodGibs.makeParticles(Reg.BLOOD_GIBS_SPRITESHEET, 100, 20, true, 0.5);
 	
 		explosionGibs = new FlxEmitter();
@@ -378,6 +402,7 @@ class PlayState extends FlxState
 		explosionGibs.setYSpeed(-100, 100);
 		explosionGibs.setRotation(-20, 0);
 		explosionGibs.gravity = 0;
+		explosionGibs.setScale(1,2,0.3,0.5);
 		explosionGibs.makeParticles(Reg.EXPLOSION_GIBS_SPRITESHEET, 100, 20, true, 0.5);
 	}
 
@@ -404,17 +429,17 @@ class PlayState extends FlxState
 
 		gameTitle = new FlxText(0,100,FlxG.width);
 		gameTitle.text = "GAME TITLE";
-		gameTitle.setFormat(null, 32, 0xFFFFFFFF, "center");
+		gameTitle.setFormat(Reg.FONT_MINECRAFTER, 48, 0xFFFFFFFF, "center");
 		gameTitle.scrollFactor.set(0,0);
 
 		highscore = new FlxText(0,200,FlxG.width);
 		highscore.text = "HI: " + Reg.highscore;
-		highscore.setFormat(null, 8, 0xFFFFFFFF, "center");
+		highscore.setFormat(Reg.FONT_MINECRAFTER, 10, 0xFFFFFFFF, "center");
 		highscore.scrollFactor.set(0,0);
 
 		pressToStart = new FlxText(0,250,FlxG.width);
-		pressToStart.text = "PRESS TO START";
-		pressToStart.setFormat(null, 8, 0xFFFFFFFF, "center");
+		pressToStart.text = "Z - SWITCH DIRECTION        SPACE - JUMP";
+		pressToStart.setFormat(Reg.FONT_MINECRAFTER, 10, 0xFFFFFFFF, "center");
 		pressToStart.scrollFactor.set(0,0);
 	}
 }

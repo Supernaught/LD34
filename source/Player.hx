@@ -115,25 +115,31 @@ class Player extends FlxSprite
 
     public function jump():Void
     {
-        velocity.y = -jumpForce;
-        canJump = false;
-
-        FlxG.worldBounds.y = y - FlxG.height;
+        addJumpForce();
 
         createJumpDust();
+
+        Sounds.jump();
     }
 
     public function bounceOffCrate():Void
     {
-        jump();
+        addJumpForce();
         // velocity.y = -jumpForce;
         // FlxG.worldBounds.y = y - FlxG.height;
+    }
+
+    public function addJumpForce():Void{
+        velocity.y = -jumpForce;
+        FlxG.worldBounds.y = y - FlxG.height;
+        canJump = false;
     }
 
     private function checkIfCanJump(){
         if(isTouching(FlxObject.FLOOR)){
             if(!canJump){
                 canJump = true;
+                Sounds.ground();
             }
         }
     }
@@ -147,6 +153,8 @@ class Player extends FlxSprite
         PlayState.emitBloodGibs(this);
         PlayState.emitWhiteGibs(this);
         PlayState.endGame();
+
+        Sounds.death();
 
         new FlxTimer(2, restartGame);
     }

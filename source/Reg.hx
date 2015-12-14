@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxSprite;
+import flixel.util.FlxRandom;
 
 class Reg
 {
@@ -27,7 +28,10 @@ class Reg
 	public inline static var T_WIDTH:Int = 16;
 	public inline static var T_HEIGHT:Int = 16;
 	public inline static var MAPS_COUNT:Int = 4;
-	public inline static var BG_COLOR:Int = 0xff81fffb;
+	public inline static var BG_COLOR:Int = 0xff81ffd7;
+	public inline static var BG_COLOR_BLUE:Int = 0xff81fffb;
+	public inline static var BG_COLOR_GREEN:Int = 0xff81ffd7;
+	public static var BG_COLORS;
 
 
 	// Hazard types
@@ -40,6 +44,12 @@ class Reg
 
 	// Physics Stuff
 	public inline static var GRAVITY:Float = 4.5;
+
+	// Fonts
+	public static inline var FONT_MINECRAFTER:String = "assets/minecrafter.ttf";
+
+	// Audio
+	public static inline var MUSIC_PATH:String = "assets/music/music.mp3";
 
 	// Assets
 	public inline static var WHITE_GIBS_SPRITESHEET:String = "assets/images/white_gibs.png";
@@ -58,6 +68,8 @@ class Reg
 		TILE_STATIC_SPIKES = [Reg.TILE_LEFT_SPIKE, Reg.TILE_RIGHT_SPIKE];
 
 		TILE_WALKABLE = [31, 32, 33, 34, 38, 39, 40, 41];
+
+		BG_COLORS = [BG_COLOR_GREEN, BG_COLOR_BLUE];
 	}
 
 	public static function getPlayerAnim(Player:FlxSprite){
@@ -96,5 +108,9 @@ class Reg
 		Spike.loadGraphic(SPRITESHEET, true, 16, 16);
 		Spike.animation.add("idle", [Reg.TILE_RIGHT_SPIKE], 30, false);
 		Spike.animation.play("idle");
+	}
+
+	public static function getRandomBgColor(){
+		return BG_COLORS[FlxRandom.intRanged(0,BG_COLORS.length-1)];
 	}
 }

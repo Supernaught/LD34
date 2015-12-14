@@ -38,6 +38,7 @@ class Block extends FlxSprite
         FlxG.camera.shake(0.01,0.1);
 		PlayState.emitCrateGibs(this);
 		PlayState.emitExplosionGibs(this);
+		Sounds.crateExplode();
 		kill();
 	}
 }

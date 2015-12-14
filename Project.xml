@@ -30,6 +30,19 @@
 	<set name="BUILD_DIR" value="export" />
 	<classpath name="source" />
 	<assets path="assets" />
+
+	<assets path="assets/sounds">
+    	<sound path="explode.wav" id="explode" />
+    	<sound path="jump1.wav" id="jump1" />
+    	<sound path="jump2.wav" id="jump2" />
+    	<sound path="jump3.wav" id="jump3" />
+    	<sound path="jump0.wav" id="jump0" />
+    	<sound path="ground.wav" id="ground" />
+    	<sound path="death.wav" id="death" />
+    	<sound path="crate1.wav" id="crate1" />
+    	<sound path="crate2.wav" id="crate2" />
+    	<sound path="crate3.wav" id="crate3" />
+	</assets>
 	
 	<!--------------------------------LIBRARIES------------------------------------->
 
