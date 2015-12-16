@@ -143,8 +143,8 @@ class Player extends FlxSprite
     public function die(){
         // trace("die");
         kill();
-        FlxG.timeScale = 0.6;       
-        FlxG.camera.flash(0xFFFFFFFF, 0.4, turnOffSlowMo, true);
+        FlxG.timeScale = 0.7;       
+        FlxG.camera.flash(0xFFFFFFFF, 0.3, turnOffSlowMo, true);
         FlxG.camera.shake(0.03,0.1);
         PlayState.emitBloodGibs(this);
         PlayState.emitWhiteGibs(this);
@@ -152,7 +152,7 @@ class Player extends FlxSprite
 
         Sounds.death();
 
-        new FlxTimer(3, restartGame);
+        new FlxTimer(1.5, restartGame);
     }
 
     public function turnOffSlowMo(){

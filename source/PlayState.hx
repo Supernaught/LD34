@@ -10,11 +10,11 @@ import flixel.group.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
-import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxRandom;
 import flixel.util.FlxTimer;
 import flixel.util.FlxPoint;
 import flixel.util.FlxSave;
+import flixel.util.FlxSpriteUtil;
 import flixel.tweens.FlxTween;
 import flixel.tile.FlxTilemap;
 import flixel.system.FlxSound;
@@ -34,10 +34,10 @@ class PlayState extends FlxState
 
 	// Title screen stuff
 	var gameTitle:FlxText;
-	var highscore:FlxText;
 	var pressToStart:FlxText;
 	var credit:FlxText;
 	var twitter:FlxText;
+	var share:FlxText;
 	public static var gameStart:Bool;
 
 	// Level stuff
@@ -55,6 +55,7 @@ class PlayState extends FlxState
 
 	// Gibs
 	public static var whiteGibs:FlxEmitter;
+	public static var trailGibs:FlxEmitter;
 	public static var squareGibs:FlxEmitter;
 	public static var bloodGibs:FlxEmitter;
 	public static var explosionGibs:FlxEmitter;
@@ -82,6 +83,7 @@ class PlayState extends FlxState
 
 		// gibs
 		add(whiteGibs);
+		add(trailGibs);
 		add(squareGibs);
 		add(crateGibs);
 		add(bigCrateGibs);
@@ -101,13 +103,12 @@ class PlayState extends FlxState
 		add(score);
 		// add(gameTitle);
 		// add(pressToStart);
-		// add(highscore);
 
 		mainMenuStuff.add(gameTitle);
 		mainMenuStuff.add(pressToStart);
 		mainMenuStuff.add(credit);
 		mainMenuStuff.add(twitter);
-		// mainMenuStuff.add(highscore);
+		// mainMenuStuff.add(share);
 
 		add(mainMenuStuff);
 
@@ -139,8 +140,8 @@ class PlayState extends FlxState
 			cameraUpdate();
 			chunksUpdate();
 			scoreUpdate();
-			
 		}
+
 		hazards.forEachAlive(screenWrap);
 		FlxSpriteUtil.screenWrap(player, true, true, false, false);
 
@@ -151,10 +152,6 @@ class PlayState extends FlxState
 	private function forDebug(){
 		if(FlxG.keys.pressed.R){
 			FlxG.resetState();
-		}
-
-		if(FlxG.keys.pressed.Q){
-			trace(player.x + " " + player.y);
 		}
 	}
 
@@ -169,6 +166,12 @@ class PlayState extends FlxState
 	private function titleScreenUpdate():Void{
 		if(!Reg.gameOver && (FlxG.keys.pressed.Z || FlxG.keys.pressed.SPACE)){
 			startGame();
+		}
+
+		if(FlxG.keys.justPressed.T){
+			var s = "I+scored+" + Reg.highscore + "+on+JUMPR,+a+game+by+@_supernaught!+Play+now+and+beat+my+highscore!+supernaught.itch.io/jumpr+%23LDJAM+%23indiedev";		
+			FlxG.openURL("http://www.twitter.com/home/?status=" + s, "_blank");
+			// FlxG.openURL("http://www.test.com");
 		}
 	}
 
@@ -300,6 +303,11 @@ class PlayState extends FlxState
 		whiteGibs.start(true,2,0.2,20,10);
 	}
 
+	public static function emitTrailGibs(Position:FlxObject){
+		// trailGibs.at(Position);
+		// trailGibs.start(true,2,0.2,20,10);
+	}
+
 	public static function emitSquareGibs(Position:FlxObject){
 		squareGibs.at(Position);
 		squareGibs.start(true,0.1,0,10,0.1);
@@ -387,6 +395,7 @@ class PlayState extends FlxState
 	private function setupGibs():Void
 	{
 		whiteGibs = new FlxEmitter();
+
 		whiteGibs.setXSpeed(-300, 300);
 		whiteGibs.setYSpeed(-300, 300);
 		whiteGibs.setRotation( -360, 0);
@@ -394,6 +403,16 @@ class PlayState extends FlxState
 		whiteGibs.bounce = 0.5;
 		whiteGibs.setScale(1,2,1,1);
 		whiteGibs.makeParticles(Reg.WHITE_GIBS_SPRITESHEET, 100, 20, true, 0.5);
+
+		trailGibs = new FlxEmitter();
+		trailGibs.setXSpeed(-300, 300);
+		trailGibs.setYSpeed(-300, 300);
+		trailGibs.setRotation( -360, 0);
+		trailGibs.gravity = 400;
+		trailGibs.bounce = 0.5;
+		trailGibs.setScale(1,2,1,1);
+		trailGibs.setColor(0xffffff, 0x229fca);
+		trailGibs.makeParticles(Reg.WHITE_GIBS_SPRITESHEET, 50, 20, true, 0.5);
 	
 		crateGibs = new FlxEmitter();
 		crateGibs.setXSpeed(-200, 200);
@@ -440,10 +459,10 @@ class PlayState extends FlxState
 	{
 		Reg.score = 0;
 		score = new FlxText(0, 2, FlxG.width); // x, y, width
-		score.text = "HI-SCORE " + Reg.highscore;
+		score.text = "BEST: " + Reg.highscore;
 		score.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
 		score.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
-		score.shadowOffset.set(0,1);
+		score.shadowOffset.set(1,1);
 		score.scrollFactor.set(0,0);
 
 		gameSave = new FlxSave();
@@ -461,23 +480,16 @@ class PlayState extends FlxState
 
 		gameTitle = new FlxText(0,100,FlxG.width);
 		gameTitle.text = Reg.GAME_TITLE;
-		gameTitle.setFormat(Reg.FONT_04B19, 70, 0xFFFFFFFF, "center");
+		gameTitle.setFormat(Reg.FONT_04B19, 56, 0xFFFFFFFF, "center");
 		gameTitle.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
-		gameTitle.shadowOffset.set(0,5);
+		gameTitle.shadowOffset.set(2,5);
 		gameTitle.scrollFactor.set(0,0);
 
-		// highscore = new FlxText(0,175,FlxG.width);
-		// highscore.text = "HI-SCORE: " + Reg.highscore;
-		// highscore.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
-		// highscore.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
-		// highscore.shadowOffset.set(0,2);
-		// highscore.scrollFactor.set(0,0);
-
-		pressToStart = new FlxText(0,240,FlxG.width);
+		pressToStart = new FlxText(0,220,FlxG.width);
 		pressToStart.text = Reg.CONTROLS;
 		pressToStart.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
 		pressToStart.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
-		pressToStart.shadowOffset.set(0,1);
+		pressToStart.shadowOffset.set(1,1);
 		pressToStart.scrollFactor.set(0,0);
 
 		credit = new FlxText(5,FlxG.height - 25,FlxG.width);
@@ -491,6 +503,13 @@ class PlayState extends FlxState
 		twitter.setFormat(Reg.FONT_WENDY, 10, 0xFFFFFFFF, "right");
 		twitter.scrollFactor.set(0,0);
 		twitter.antialiasing = false;
+
+		share = new FlxText(0, 25, FlxG.width);
+		share.text = Reg.SHARE;
+		share.setFormat(Reg.FONT_WENDY, 10, 0xFFFFFFFF, "center");
+		share.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
+		share.scrollFactor.set(0,0);
+		share.antialiasing = false;
 	}
 
 	private function flashWhite(Timer:FlxTimer = null){

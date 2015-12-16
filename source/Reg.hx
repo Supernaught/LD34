@@ -54,9 +54,10 @@ class Reg
 
 	// UI Stuff
 	public static inline var GAME_TITLE:String = "JUMPR";
-	public static inline var CONTROLS:String = "Z - SWITCH\nUP - JUMP";
+	public static inline var CONTROLS:String = "[Z] SWITCH\n[UP] JUMP";
 	public static inline var CREDIT:String = "CREATED BY @ _SUPERNAUGHT\nFOR LUDUM DARE 34";
 	public static inline var TWITTER:String = "@ ALPHNSUS / CODE\n@ M0M0RG0TH / ART";
+	public static inline var SHARE:String = "PRESS [T] TO TWEET YOUR SCORE!";
 
 	// Audio
 	public static inline var MUSIC_PATH:String = "assets/music/music.mp3";
