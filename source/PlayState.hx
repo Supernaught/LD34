@@ -164,13 +164,13 @@ class PlayState extends FlxState
 	}
 
 	private function titleScreenUpdate():Void{
-		if(!Reg.gameOver && (FlxG.keys.pressed.Z || FlxG.keys.pressed.SPACE)){
+		if(!Reg.gameOver && (FlxG.keys.pressed.Z || FlxG.keys.pressed.UP)){
 			startGame();
 		}
 
 		if(FlxG.keys.justPressed.T){
 			var s = "I+scored+" + Reg.highscore + "+on+JUMPR,+a+game+by+@_supernaught!+Play+now+and+beat+my+highscore!+supernaught.itch.io/jumpr+%23LDJAM+%23indiedev";		
-			FlxG.openURL("http://www.twitter.com/home/?status=" + s, "_blank");
+			FlxG.openURL("http://www.twitter.com/home/?status=" + s, "_self");
 			// FlxG.openURL("http://www.test.com");
 		}
 	}
@@ -227,7 +227,7 @@ class PlayState extends FlxState
 	public function cameraUpdate():Void{
 		if(player.alive && gameStart){
 			cameraTarget.y -= cameraTargetSpeed;
-			// cameraTarget.y = player.y;
+
 			if(player.y >= (FlxG.camera.scroll.y + FlxG.height + 30) ||
 				player.y <= (FlxG.camera.scroll.y - 50)){
 				cameraTarget.y = player.y - FlxG.height/3;
@@ -457,14 +457,6 @@ class PlayState extends FlxState
 
 	private function setupScore():Void
 	{
-		Reg.score = 0;
-		score = new FlxText(0, 2, FlxG.width); // x, y, width
-		score.text = "BEST: " + Reg.highscore;
-		score.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
-		score.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
-		score.shadowOffset.set(1,1);
-		score.scrollFactor.set(0,0);
-
 		gameSave = new FlxSave();
 		gameSave.bind("ld34_highscore");
 
@@ -473,6 +465,14 @@ class PlayState extends FlxState
 		} else{
 			Reg.highscore = 0;
 		}
+		
+		Reg.score = 0;
+		score = new FlxText(0, 2, FlxG.width); // x, y, width
+		score.text = "BEST: " + Reg.highscore;
+		score.setFormat(Reg.FONT_WENDY, 20, 0xFFFFFFFF, "center");
+		score.setBorderStyle(FlxText.BORDER_SHADOW, 0x000000, 1, 1);
+		score.shadowOffset.set(1,1);
+		score.scrollFactor.set(0,0);
 	}
 
 	private function setupTitleScreen():Void{
